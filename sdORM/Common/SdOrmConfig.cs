@@ -1,4 +1,4 @@
-﻿using sdORM.Entities;
+﻿using sdORM.Mapping;
 
 namespace sdORM.Common
 {

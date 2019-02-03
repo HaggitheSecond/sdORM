@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using MySql.Data.MySqlClient;
 using sdORM.Common.SqlSpecifics;
-using sdORM.Entities;
+using sdORM.Mapping;
 
 namespace sdORM.MySql
 {

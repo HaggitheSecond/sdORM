@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 using sdORM.Common.SqlSpecifics;
-using sdORM.Entities;
+using sdORM.Mapping;
 
 namespace sdORM.Extensions
 {

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Session;
 
 namespace sdORM
 {
