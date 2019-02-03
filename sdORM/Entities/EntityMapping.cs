@@ -11,24 +11,23 @@ namespace sdORM.Entities
 {
     public abstract class EntityMapping
     {
-        protected readonly IDataBaseSession _session;
         protected readonly IList<DBPropertyMapping> _properties;
 
         public string TableName { get; protected set; }
         public DBPropertyMapping PrimaryKeyPropertyMapping { get; protected set; }
         public ReadOnlyCollection<DBPropertyMapping> Properties { get; }
 
-        protected EntityMapping(IDataBaseSession session)
+        protected EntityMapping()
         {
-            this._session = session;
-
             this.Properties = new ReadOnlyCollection<DBPropertyMapping>(this._properties = new List<DBPropertyMapping>());
         }
 
         public abstract void Map();
 
-        public abstract Task MapAsync();
-        
+        public abstract void ValidateAgainstDatabase(IDataBaseSession session);
+
+        public abstract Task ValidateAgainstDatabase(IDataBaseSessionAsync session);
+
         public class DBPropertyMapping
         {
             public PropertyInfo Property { get; set; }
@@ -38,11 +37,7 @@ namespace sdORM.Entities
     }
 
     public abstract class EntityMapping<T> : EntityMapping
-    {
-        protected EntityMapping(IDataBaseSession session)
-            : base(session)
-        {
-        }
+    { 
 
         #region PrimaryKey
 

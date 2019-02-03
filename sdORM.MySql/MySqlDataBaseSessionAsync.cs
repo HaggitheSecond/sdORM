@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,17 +9,14 @@ using MySql.Data.MySqlClient;
 using sdORM.Common;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Entities;
-using sdORM.Extensions;
-using sdORM.Interfaces;
 
 namespace sdORM.MySql
 {
-
-    public class MySqlDataBaseSession : DataBaseSession
+    public class MySqlDataBaseSessionAsync : DataBaseSessionAsync
     {
         private readonly MySqlSqlProvider _sqlProvider;
 
-        public MySqlDataBaseSession(SdOrmConfig config)
+        public MySqlDataBaseSessionAsync(SdOrmConfig config) 
             : base(new MySqlConnection(config.ConnectionString), config.Mappings)
         {
             this._sqlProvider = new MySqlSqlProvider();
@@ -60,7 +56,7 @@ namespace sdORM.MySql
         {
             return this._sqlProvider.GetSqlForCheckIfTableExtists(tableName);
         }
-        
+
         protected override StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping)
         {
             return this._sqlProvider.GetSelectStatementForMapping(mapping);

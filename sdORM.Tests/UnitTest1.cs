@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Entities;
 using sdORM.Interfaces;
 using sdORM.MySql;
 using Xunit;
@@ -10,17 +11,15 @@ namespace sdORM.Tests
 {
     public class UnitTest1
     {
-        private DataBaseConfig _config => new DataBaseConfig
+        private readonly DataBaseSessionFactory _factory = new MySqlDataBaseSessionFactory(new SdOrmConfig
         {
             //Server = "b5-312-pc02",
             //DataBase = "mydb",
             //Password = "3r1k-uk",
             //UserName = "user2"
-            Server = "localhost",
-            DataBase = "develop",
-            Password = "",
-            UserName = "root"
-        };
+            ConnectionString = $"Server=localhost; database=develop; UID=root; password=;",
+            Mappings = new EntityMappingProvider(typeof(AttributeEntityMapping<>))
+        });
 
         [Fact]
         public void Test()
@@ -31,21 +30,17 @@ namespace sdORM.Tests
         [Fact]
         public void ConnectionTest()
         {
-            using (var session = new MySqlDataBaseSession(this._config))
+            using (var session = this._factory.CreateSession())
             {
-                session.Connect();
 
-                Assert.True(session.IsConnected);
             }
         }
 
         [Fact]
         public void QueryTest()
         {
-            using (IDataBaseSession session = new MySqlDataBaseSession(this._config))
+            using (var session = this._factory.CreateSession())
             {
-                session.Connect();
-
                 var result = session.Query<Employee>(f => f.ID == 1);
 
                 Assert.True(result != null);
@@ -56,42 +51,12 @@ namespace sdORM.Tests
         [Fact]
         public async Task QueryTestAsync()
         {
-            using (IDataBaseSession session = new MySqlDataBaseSession(this._config))
+            using (var session = await this._factory.CreateAsyncSession())
             {
-                await session.ConnectAsync();
-
                 var result = await session.QueryAsync<Employee>(f => f.ID == 1);
 
                 Assert.True(result != null);
                 Assert.True(result.Count == 1);
-            }
-        }
-
-        [Fact]
-        public void PreRegisterTest()
-        {
-            using (IDataBaseSession session = new MySqlDataBaseSession(this._config))
-            {
-                session.Connect();
-
-                session.EntityMappingProvider.PreGenerateEntityMappings(new List<Type>()
-                {
-                    typeof(Employee)
-                });
-            }
-        }
-
-        [Fact]
-        public async Task PreRegisterTestAsync()
-        {
-            using (IDataBaseSession session = new MySqlDataBaseSession(this._config))
-            {
-                await session.ConnectAsync();
-
-                await session.EntityMappingProvider.PreGenerateEntityMappingsAsync(new List<Type>()
-                {
-                    typeof(Employee)
-                });
             }
         }
     }

@@ -7,17 +7,13 @@ namespace sdORM.Entities
 {
     public class EntityMappingProvider
     {
-        private readonly IDataBaseSession _session;
-
         private Dictionary<Type, EntityMapping> ExistingMappings { get; }
 
         // not sure if I'm happy with this...
         private readonly Type _entityMappingType;
 
-        public EntityMappingProvider(IDataBaseSession session, Type entityMappingType)
+        public EntityMappingProvider(Type entityMappingType)
         {
-            this._session = session;
-
             this._entityMappingType = entityMappingType;
             this.ExistingMappings = new Dictionary<Type, EntityMapping>();
         }
@@ -35,35 +31,11 @@ namespace sdORM.Entities
 
             return (EntityMapping<T>)mapping;
         }
-
-        public void PreGenerateEntityMappings(IList<Type> entityTypes)
-        {
-            foreach (var currentEntityType in entityTypes)
-            {
-                var mapping = this.GenerateEntityMappingForType(currentEntityType);
-
-                mapping.Map();
-
-                this.ExistingMappings.Add(currentEntityType, mapping);
-            }
-        }
-
-        public async Task PreGenerateEntityMappingsAsync(IList<Type> entityTypes)
-        {
-            foreach (var currentEntityType in entityTypes)
-            {
-                var mapping = this.GenerateEntityMappingForType(currentEntityType);
-
-                await mapping.MapAsync();
-
-                this.ExistingMappings.Add(currentEntityType, mapping);
-            }
-        }
-
+        
         private EntityMapping GenerateEntityMappingForType(Type type)
         {
             var mappingType = this._entityMappingType.MakeGenericType(type);
-            return (EntityMapping)Activator.CreateInstance(mappingType, this._session);
+            return (EntityMapping)Activator.CreateInstance(mappingType);
         }
     }
 }

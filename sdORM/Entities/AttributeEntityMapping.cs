@@ -13,27 +13,11 @@ namespace sdORM.Entities
 {
     public class AttributeEntityMapping<T> : EntityMapping<T>
     {
-        public AttributeEntityMapping(IDataBaseSession session) 
-            : base(session)
-        {
-        }
-        
         public override void Map()
         {
             this.ValidateEntity();
             this.Load();
             this.ValidateAfterLoad();
-
-            this.ValidateAgainstDatabase();
-        }
-
-        public override async Task MapAsync()
-        {
-            this.ValidateEntity();
-            this.Load();
-            this.ValidateAfterLoad();
-
-            await this.ValidateAgainstDatabaseAsync();
         }
 
         #region Validation
@@ -82,14 +66,14 @@ namespace sdORM.Entities
                 throw new NoPrimaryKeyMappingForDBEntityException(typeof(T));
         }
 
-        private void ValidateAgainstDatabase()
+        public override void ValidateAgainstDatabase(IDataBaseSession session)
         {
-            this.ValidateAgainstTableMetaData(this._session.GetTableMetaData(this.TableName));
+            this.ValidateAgainstTableMetaData(session.GetTableMetaData(this.TableName));
         }
 
-        private async Task ValidateAgainstDatabaseAsync()
+        public override async Task ValidateAgainstDatabase(IDataBaseSessionAsync session)
         {
-            this.ValidateAgainstTableMetaData(await this._session.GetTableMetaDataAsync(this.TableName));
+            this.ValidateAgainstTableMetaData(await session.GetTableMetaDataAsync(this.TableName));
         }
 
         private void ValidateAgainstTableMetaData(TableMetaData tableMetadata)
@@ -110,7 +94,7 @@ namespace sdORM.Entities
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
             }
         }
-
+        
         #endregion
 
         #region Loading
@@ -122,7 +106,7 @@ namespace sdORM.Entities
             this.TableName = tableNameAttribute != null
                 ? tableNameAttribute.TableName
                 : typeof(T).Name;
-            
+
             this.LoadProperties(typeof(T));
         }
 
@@ -153,7 +137,7 @@ namespace sdORM.Entities
                 if (currentProperty.GetCustomAttribute<DBProperty>() != null)
                 {
                     this._properties.Add(propertyMapping);
-                    
+
                 }
             }
 
