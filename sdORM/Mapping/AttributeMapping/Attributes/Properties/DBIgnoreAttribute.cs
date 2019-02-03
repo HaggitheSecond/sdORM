@@ -2,7 +2,7 @@
 
 namespace sdORM.Mapping.AttributeMapping.Attributes.Properties
 {
-    public class DBPrimaryKey : Attribute
+    public class DBIgnoreAttribute : Attribute
     {
 
     }

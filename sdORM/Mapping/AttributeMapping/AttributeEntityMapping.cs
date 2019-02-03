@@ -26,7 +26,7 @@ namespace sdORM.Mapping.AttributeMapping
         {
             var type = typeof(T);
 
-            if (type.GetCustomAttribute<DBEntity>() == null)
+            if (type.GetCustomAttribute<DBEntityAttribute>() == null)
                 throw new NoDBEntityMappingException(typeof(T));
 
             this.ValidateType(type);
@@ -45,12 +45,12 @@ namespace sdORM.Mapping.AttributeMapping
 
         private void ValidateProperty(PropertyInfo property)
         {
-            if (property.GetCustomAttribute<DBProperty>() == null
-                && property.GetCustomAttribute<DBIgnore>() == null
-                && property.GetCustomAttribute<DBPrimaryKey>() == null)
+            if (property.GetCustomAttribute<DBPropertyAttribute>() == null
+                && property.GetCustomAttribute<DBIgnoreAttribute>() == null
+                && property.GetCustomAttribute<DBPrimaryKeyAttribute>() == null)
                 throw new NoDBPropertyMappingException(property.DeclaringType, property);
 
-            if (property.GetCustomAttribute<DBPrimaryKey>() != null)
+            if (property.GetCustomAttribute<DBPrimaryKeyAttribute>() != null)
             {
                 if (property.PropertyType.IsValueType == false || property.PropertyType.IsNullable())
                     throw new BadDBPropertyMappingException(property.DeclaringType, property, "The primary key must be a non-nullable value type.");
@@ -101,10 +101,9 @@ namespace sdORM.Mapping.AttributeMapping
 
         private void Load()
         {
-            var tableNameAttribute = typeof(T).GetCustomAttribute<DBEntityTableName>();
-
-            this.TableName = tableNameAttribute != null
-                ? tableNameAttribute.TableName
+            var entityAttribute = typeof(T).GetCustomAttribute<DBEntityAttribute>();
+            this.TableName = string.IsNullOrWhiteSpace(entityAttribute.TableName)
+                ? entityAttribute.TableName
                 : typeof(T).Name;
 
             this.LoadProperties(typeof(T));
@@ -114,30 +113,36 @@ namespace sdORM.Mapping.AttributeMapping
         {
             foreach (var currentProperty in type.GetProperties())
             {
-                if (currentProperty.GetCustomAttribute<DBIgnore>() != null)
+                if (currentProperty.GetCustomAttribute<DBIgnoreAttribute>() != null)
                     continue;
 
-                var columnNameAttribute = currentProperty.GetCustomAttribute<DBPropertyColumnName>();
 
-                var columnName = columnNameAttribute != null
-                    ? columnNameAttribute.TableName
-                    : currentProperty.Name;
-
-                var propertyMapping = new DBPropertyMapping
+                var primaryKeyAttribute = currentProperty.GetCustomAttribute<DBPrimaryKeyAttribute>();
+                if (primaryKeyAttribute != null)
                 {
-                    ColumnName = columnName,
-                    Property = currentProperty
-                };
+                    var columnName = string.IsNullOrWhiteSpace(primaryKeyAttribute.ColumnName)
+                        ? primaryKeyAttribute.ColumnName
+                        : currentProperty.Name;
 
-                if (currentProperty.GetCustomAttribute<DBPrimaryKey>() != null)
-                {
-                    this.PrimaryKeyPropertyMapping = propertyMapping;
+                    this._properties.Add(new DBPropertyMapping
+                    {
+                        ColumnName = columnName,
+                        Property = currentProperty
+                    });
                 }
 
-                if (currentProperty.GetCustomAttribute<DBProperty>() != null)
+                var propertyAttribute = currentProperty.GetCustomAttribute<DBPropertyAttribute>();
+                if (propertyAttribute != null)
                 {
-                    this._properties.Add(propertyMapping);
+                    var columnName = string.IsNullOrWhiteSpace(propertyAttribute.ColumnName)
+                        ? propertyAttribute.ColumnName
+                        : currentProperty.Name;
 
+                    this._properties.Add(new DBPropertyMapping
+                    {
+                        ColumnName = columnName,
+                        Property = currentProperty
+                    });
                 }
             }
 
