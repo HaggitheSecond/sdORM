@@ -11,10 +11,14 @@ namespace sdORM.Entities
 
         private Dictionary<Type, EntityMapping> ExistingMappings { get; }
 
-        public EntityMappingProvider(IDataBaseSession session)
+        // not sure if I'm happy with this...
+        private readonly Type _entityMappingType;
+
+        public EntityMappingProvider(IDataBaseSession session, Type entityMappingType)
         {
             this._session = session;
 
+            this._entityMappingType = entityMappingType;
             this.ExistingMappings = new Dictionary<Type, EntityMapping>();
         }
 
@@ -22,14 +26,14 @@ namespace sdORM.Entities
         {
             if (this.ExistingMappings.ContainsKey(typeof(T)))
                 return (EntityMapping<T>)this.ExistingMappings[typeof(T)];
-            
-            var mapping = new EntityMapping<T>(this._session);
+
+            var mapping = this.GenerateEntityMappingForType(typeof(T));
 
             mapping.Map();
 
             this.ExistingMappings.Add(typeof(T), mapping);
 
-            return mapping;
+            return (EntityMapping<T>)mapping;
         }
 
         public void PreGenerateEntityMappings(IList<Type> entityTypes)
@@ -58,7 +62,7 @@ namespace sdORM.Entities
 
         private EntityMapping GenerateEntityMappingForType(Type type)
         {
-            var mappingType = typeof(EntityMapping<>).MakeGenericType(type);
+            var mappingType = this._entityMappingType.MakeGenericType(type);
             return (EntityMapping)Activator.CreateInstance(mappingType, this._session);
         }
     }

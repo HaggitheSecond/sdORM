@@ -28,7 +28,8 @@ namespace sdORM.MySql
             this._connection = new MySqlConnection(config.ToString());
 
             this._expressionToMySqlProvider = new ExpressionToMySqlProvider();
-            this.EntityMappingProvider = new EntityMappingProvider(this);
+            // TODO: move attirbute entitymapping to correct place (not here)
+            this.EntityMappingProvider = new EntityMappingProvider(this, typeof(AttributeEntityMapping<>));
         }
 
         public void Dispose()
