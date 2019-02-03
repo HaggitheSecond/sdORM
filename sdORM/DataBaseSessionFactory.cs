@@ -17,7 +17,16 @@ namespace sdORM
         {
         }
 
+        /// <summary>
+        /// Will create a <see cref="IDataBaseSession"/> with the spcified connection and open it.
+        /// </summary>
+        /// <returns>The created databasesession.</returns>
         public abstract IDataBaseSession CreateSession();
+
+        /// <summary>
+        /// Will asynchronously create a <see cref="IDataBaseSessionAsync"/> with the spcified connection and open it.
+        /// </summary>
+        /// <returns>The created databasesession.</returns>
         public abstract Task<IDataBaseSessionAsync> CreateAsyncSession();
     }
 }
