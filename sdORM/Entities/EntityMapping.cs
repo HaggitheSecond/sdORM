@@ -118,7 +118,9 @@ namespace sdORM.Entities
             if (tableMetadata == null)
                 throw new NoTableForDBEntityException(typeof(T), this.TableName);
 
-            if (tableMetadata.Columns.Any(f => f.ColumnName == this.PrimaryKeyPropertyMapping.ColumnName) == false)
+            var keyPropertyColumnMetaData = tableMetadata.Columns.FirstOrDefault(f => f.ColumnName == this.PrimaryKeyPropertyMapping.ColumnName);
+
+            if (keyPropertyColumnMetaData == null)
                 throw new NoMatchingColumnForDBPropertyException(this.TableName, this.PrimaryKeyPropertyMapping.ColumnName);
 
             foreach (var currentProperty in this.Properties)
@@ -127,8 +129,6 @@ namespace sdORM.Entities
 
                 if (columnMetaData == null)
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
-
-                currentProperty.Ordinal = columnMetaData.OrdinalPosition;
             }
         }
 
@@ -136,7 +136,7 @@ namespace sdORM.Entities
 
         #region Loading
 
-        public void Load()
+        private void Load()
         {
             var tableNameAttribute = typeof(T).GetCustomAttribute<DBEntityTableName>();
 
@@ -198,14 +198,12 @@ namespace sdORM.Entities
         }
 
         #endregion
-
+        
         public class DBPropertyMapping
         {
             public PropertyInfo Property { get; set; }
 
             public string ColumnName { get; set; }
-
-            public int Ordinal { get; set; }
         }
     }
 }

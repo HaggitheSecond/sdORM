@@ -17,7 +17,7 @@ namespace sdORM.Extensions
 
             foreach (var currentProperty in mapping.Properties)
             {
-                var value = self.GetValue(currentProperty.Ordinal);
+                var value = self.GetValue(self.GetOrdinal(currentProperty.ColumnName));
 
                 currentProperty.Property.SetValue(entity, value);
             }

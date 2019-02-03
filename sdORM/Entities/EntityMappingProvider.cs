@@ -36,8 +36,7 @@ namespace sdORM.Entities
         {
             foreach (var currentEntityType in entityTypes)
             {
-                var mappingType = typeof(EntityMapping<>).MakeGenericType(currentEntityType);
-                var mapping = (EntityMapping) Activator.CreateInstance(mappingType, this._session);
+                var mapping = this.GenerateEntityMappingForType(currentEntityType);
 
                 mapping.Map();
 
@@ -49,13 +48,18 @@ namespace sdORM.Entities
         {
             foreach (var currentEntityType in entityTypes)
             {
-                var mappingType = typeof(EntityMapping<>).MakeGenericType(currentEntityType);
-                var mapping = (EntityMapping)Activator.CreateInstance(mappingType, this._session);
+                var mapping = this.GenerateEntityMappingForType(currentEntityType);
 
                 await mapping.MapAsync();
 
                 this.ExistingMappings.Add(currentEntityType, mapping);
             }
+        }
+
+        private EntityMapping GenerateEntityMappingForType(Type type)
+        {
+            var mappingType = typeof(EntityMapping<>).MakeGenericType(type);
+            return (EntityMapping)Activator.CreateInstance(mappingType, this._session);
         }
     }
 }
