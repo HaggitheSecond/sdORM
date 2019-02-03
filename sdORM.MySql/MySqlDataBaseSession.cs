@@ -84,7 +84,7 @@ namespace sdORM.MySql
                     return default(IList<T>);
 
                 var results = new List<T>();
-                
+
                 while (await reader.ReadAsync())
                 {
                     results.Add(reader.LoadWithEntityMapping(mapping));
@@ -119,7 +119,7 @@ namespace sdORM.MySql
                     return default(IList<T>);
 
                 var results = new List<T>();
-                
+
                 while (reader.Read())
                 {
                     results.Add(reader.LoadWithEntityMapping(mapping));
@@ -164,7 +164,7 @@ namespace sdORM.MySql
             {
                 if (reader.HasRows == false)
                     return default(T);
-                
+
                 reader.Read();
 
                 return reader.LoadWithEntityMapping(mapping);
@@ -181,7 +181,7 @@ namespace sdORM.MySql
             {
                 if (reader.HasRows == false)
                     return default(T);
-                
+
                 await reader.ReadAsync();
 
                 return reader.LoadWithEntityMapping(mapping);
@@ -357,6 +357,15 @@ namespace sdORM.MySql
 
         public TableMetaData GetTableMetaData(string tableName)
         {
+            // I'm not sure if returning null if it doesnt exist is really what we want to do here.
+            // Throwing an exception might be the better option but simply returning null is consitent with how the database does it. Not sure...
+            using (var cmd = this.GetSqlCommand(this.GetSqlForCheckIfTableExtists(tableName)))
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows == false)
+                    return null;
+            }
+
             using (var cmd = this.GetSqlCommand(this.GetSqlForTableMetaData(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
@@ -376,6 +385,14 @@ namespace sdORM.MySql
 
         public async Task<TableMetaData> GetTableMetaDataAsync(string tableName)
         {
+            // See sync version for comment
+            using (var cmd = this.GetSqlCommand(this.GetSqlForCheckIfTableExtists(tableName)))
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                if (reader.HasRows == false)
+                    return null;
+            }
+
             using (var cmd = this.GetSqlCommand(this.GetSqlForTableMetaData(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
@@ -396,6 +413,11 @@ namespace sdORM.MySql
         private string GetSqlForTableMetaData(string tableName)
         {
             return $"SELECT column_name, ordinal_position, data_type, column_type FROM information_schema.columns WHERE table_name = '{tableName}'";
+        }
+
+        private string GetSqlForCheckIfTableExtists(string tableName)
+        {
+            return $"SHOW TABLES LIKE '{tableName}'";
         }
 
         #endregion

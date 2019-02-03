@@ -115,6 +115,9 @@ namespace sdORM.Entities
 
         private void ValidateAgainstTableMetaData(TableMetaData tableMetadata)
         {
+            if (tableMetadata == null)
+                throw new NoTableForDBEntityException(typeof(T), this.TableName);
+
             if (tableMetadata.Columns.Any(f => f.ColumnName == this.PrimaryKeyPropertyMapping.ColumnName) == false)
                 throw new NoMatchingColumnForDBPropertyException(this.TableName, this.PrimaryKeyPropertyMapping.ColumnName);
 
