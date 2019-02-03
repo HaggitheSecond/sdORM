@@ -120,8 +120,12 @@ namespace sdORM.Entities
 
             foreach (var currentProperty in this.Properties)
             {
-                if (tableMetadata.Columns.Any(f => f.ColumnName == currentProperty.ColumnName) == false)
+                var columnMetaData = tableMetadata.Columns.FirstOrDefault(f => f.ColumnName == currentProperty.ColumnName);
+
+                if (columnMetaData == null)
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
+
+                currentProperty.Ordinal = columnMetaData.OrdinalPosition;
             }
         }
 
@@ -197,6 +201,8 @@ namespace sdORM.Entities
             public PropertyInfo Property { get; set; }
 
             public string ColumnName { get; set; }
+
+            public int Ordinal { get; set; }
         }
     }
 }

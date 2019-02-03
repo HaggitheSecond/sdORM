@@ -8,7 +8,7 @@ namespace sdORM.Extensions
 {
     public static class IDataRecordExtensions
     {
-        public static T LoadWithEntityMapping<T>(this IDataRecord self, IReadOnlyDictionary<string, int> ordinals, EntityMapping<T> mapping) where T : new()
+        public static T LoadWithEntityMapping<T>(this IDataRecord self, EntityMapping<T> mapping) where T : new()
         {
             var entity = new T();
 
@@ -17,7 +17,7 @@ namespace sdORM.Extensions
 
             foreach (var currentProperty in mapping.Properties)
             {
-                var value = self.GetValue(ordinals[currentProperty.ColumnName]);
+                var value = self.GetValue(currentProperty.Ordinal);
 
                 currentProperty.Property.SetValue(entity, value);
             }
@@ -35,12 +35,7 @@ namespace sdORM.Extensions
                 ColumnType = self.GetString("column_type"),
             };
         }
-
-        public static Dictionary<string, int> GetOrdinals(this IDataRecord self, IList<string> columnNames)
-        {
-            return columnNames.ToDictionary(f => f, self.GetOrdinal);
-        }
-
+        
         public static string GetString(this IDataRecord self, string columnName)
         {
             return self.GetString(self.GetOrdinal(columnName));

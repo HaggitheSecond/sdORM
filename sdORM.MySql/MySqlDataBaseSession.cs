@@ -84,12 +84,10 @@ namespace sdORM.MySql
                     return default(IList<T>);
 
                 var results = new List<T>();
-
-                var ordinals = reader.GetOrdinals(mapping.Properties.Select(f => f.ColumnName).ToList());
-
+                
                 while (await reader.ReadAsync())
                 {
-                    results.Add(reader.LoadWithEntityMapping(ordinals, mapping));
+                    results.Add(reader.LoadWithEntityMapping(mapping));
                 }
 
                 return results;
@@ -121,12 +119,10 @@ namespace sdORM.MySql
                     return default(IList<T>);
 
                 var results = new List<T>();
-
-                var ordinals = reader.GetOrdinals(mapping.Properties.Select(f => f.ColumnName).ToList());
-
+                
                 while (reader.Read())
                 {
-                    results.Add(reader.LoadWithEntityMapping(ordinals, mapping));
+                    results.Add(reader.LoadWithEntityMapping(mapping));
                 }
 
                 return results;
@@ -168,12 +164,10 @@ namespace sdORM.MySql
             {
                 if (reader.HasRows == false)
                     return default(T);
-
-                var ordinals = reader.GetOrdinals(mapping.Properties.Select(f => f.ColumnName).ToList());
-
+                
                 reader.Read();
 
-                return reader.LoadWithEntityMapping(ordinals, mapping);
+                return reader.LoadWithEntityMapping(mapping);
             }
         }
 
@@ -187,12 +181,10 @@ namespace sdORM.MySql
             {
                 if (reader.HasRows == false)
                     return default(T);
-
-                var ordinals = reader.GetOrdinals(mapping.Properties.Select(f => f.ColumnName).ToList());
-
+                
                 await reader.ReadAsync();
 
-                return reader.LoadWithEntityMapping(ordinals, mapping);
+                return reader.LoadWithEntityMapping(mapping);
             }
         }
 
