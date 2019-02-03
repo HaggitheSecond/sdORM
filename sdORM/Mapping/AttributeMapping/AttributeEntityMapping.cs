@@ -94,7 +94,7 @@ namespace sdORM.Mapping.AttributeMapping
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
             }
         }
-        
+
         #endregion
 
         #region Loading
@@ -102,7 +102,7 @@ namespace sdORM.Mapping.AttributeMapping
         private void Load()
         {
             var entityAttribute = typeof(T).GetCustomAttribute<DBEntityAttribute>();
-            this.TableName = string.IsNullOrWhiteSpace(entityAttribute.TableName)
+            this.TableName = string.IsNullOrWhiteSpace(entityAttribute.TableName) == false
                 ? entityAttribute.TableName
                 : typeof(T).Name;
 
@@ -115,26 +115,25 @@ namespace sdORM.Mapping.AttributeMapping
             {
                 if (currentProperty.GetCustomAttribute<DBIgnoreAttribute>() != null)
                     continue;
-
-
+                
                 var primaryKeyAttribute = currentProperty.GetCustomAttribute<DBPrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
                 {
-                    var columnName = string.IsNullOrWhiteSpace(primaryKeyAttribute.ColumnName)
+                    var columnName = string.IsNullOrWhiteSpace(primaryKeyAttribute.ColumnName) == false
                         ? primaryKeyAttribute.ColumnName
                         : currentProperty.Name;
 
-                    this._properties.Add(new DBPropertyMapping
+                    this.PrimaryKeyPropertyMapping = new DBPropertyMapping
                     {
                         ColumnName = columnName,
                         Property = currentProperty
-                    });
+                    };
                 }
 
                 var propertyAttribute = currentProperty.GetCustomAttribute<DBPropertyAttribute>();
                 if (propertyAttribute != null)
                 {
-                    var columnName = string.IsNullOrWhiteSpace(propertyAttribute.ColumnName)
+                    var columnName = string.IsNullOrWhiteSpace(propertyAttribute.ColumnName) == false
                         ? propertyAttribute.ColumnName
                         : currentProperty.Name;
 
