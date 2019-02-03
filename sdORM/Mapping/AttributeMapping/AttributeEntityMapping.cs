@@ -53,10 +53,10 @@ namespace sdORM.Mapping.AttributeMapping
             if (property.GetCustomAttribute<DBPrimaryKeyAttribute>() != null)
             {
                 if (property.PropertyType.IsValueType == false || property.PropertyType.IsNullable())
-                    throw new BadDBPropertyMappingException(property.DeclaringType, property, "The primary key must be a non-nullable value type.");
+                    throw new DBPrimaryKeyNonNullableException(property.DeclaringType, property);
 
                 if (property.PropertyType != typeof(int))
-                    throw new BadDBPropertyMappingException(property.DeclaringType, property, $"'{property.PropertyType}' is not supported as a primary key.");
+                    throw new DBPrimaryKeyNonSupportedTypeException(property.DeclaringType, property);
             }
         }
 

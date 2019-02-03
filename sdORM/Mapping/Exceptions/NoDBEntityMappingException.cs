@@ -2,7 +2,8 @@
 
 namespace sdORM.Mapping.Exceptions
 {
-    public class NoDBEntityMappingException : Exception
+    [Serializable]
+    public class NoDBEntityMappingException : DBMappingException
     {
         public NoDBEntityMappingException(Type type)
             : base($"'{type.FullName}' is not decleared as a DBEntityAttribute. Try adding the [DBEntityAttribute] attribute.")

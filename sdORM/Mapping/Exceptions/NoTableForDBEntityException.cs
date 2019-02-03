@@ -2,7 +2,8 @@
 
 namespace sdORM.Mapping.Exceptions
 {
-    public class NoTableForDBEntityException : Exception
+    [Serializable]
+    public class NoTableForDBEntityException : DBMappingException
     {
         public NoTableForDBEntityException(Type type, string tableName)
             : base($"No matching table for type '{type.Name}' and tableName '{tableName}' found.")

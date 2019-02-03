@@ -2,7 +2,8 @@
 
 namespace sdORM.Mapping.Exceptions
 {
-    public class NoMatchingColumnForDBPropertyException : Exception
+    [Serializable]
+    public class NoMatchingColumnForDBPropertyException : DBMappingException
     {
         public NoMatchingColumnForDBPropertyException(string tableName, string columnName)
             : base($"No column '{columnName}' in table '{tableName}' found.")
