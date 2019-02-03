@@ -26,8 +26,11 @@ namespace sdORM.Mapping.AttributeMapping
         {
             var type = typeof(T);
 
+            if (type.IsClass == false)
+                throw new DBEntityNonValidTypeException(type);
+
             if (type.GetCustomAttribute<DBEntityAttribute>() == null)
-                throw new NoDBEntityMappingException(typeof(T));
+                throw new NoDBEntityMappingException(type);
 
             this.ValidateType(type);
         }
@@ -52,9 +55,6 @@ namespace sdORM.Mapping.AttributeMapping
 
             if (property.GetCustomAttribute<DBPrimaryKeyAttribute>() != null)
             {
-                if (property.PropertyType.IsValueType == false || property.PropertyType.IsNullable())
-                    throw new DBPrimaryKeyNonNullableException(property.DeclaringType, property);
-
                 if (property.PropertyType != typeof(int))
                     throw new DBPrimaryKeyNonSupportedTypeException(property.DeclaringType, property);
             }
