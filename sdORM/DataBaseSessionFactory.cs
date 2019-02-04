@@ -14,7 +14,7 @@ namespace sdORM
         {
             this._config = config;
         }
-
+        
         /// <summary>
         /// Will initialize the factory, making sure everything is ready for sessions to be created.
         /// </summary>

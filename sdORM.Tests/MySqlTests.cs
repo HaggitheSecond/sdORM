@@ -1,8 +1,7 @@
+using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common;
-using sdORM.Mapping;
 using sdORM.Mapping.AttributeMapping;
-using sdORM.Mapping.Exceptions;
 using sdORM.MySql;
 using sdORM.Tests.Entities;
 using Xunit;
@@ -15,11 +14,15 @@ namespace sdORM.Tests
         {
             get
             {
+                var attributeEntityMappingProvider = new AttributeEntityMappingProvider();
+
+                attributeEntityMappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
+
                 var factory = new MySqlDataBaseSessionFactory(new SdOrmConfig
                 {
                     //ConnectionString = "Server=b5-312-pc02; database=mydb; UID=3r1k-uk; password=user2;
                     ConnectionString = "Server=localhost; database=develop; UID=root; password=;",
-                    Mappings = new EntityMappingProvider(typeof(AttributeEntityMapping<>))
+                    Mappings = attributeEntityMappingProvider
                 });
 
                 factory.Initalize();
@@ -43,21 +46,6 @@ namespace sdORM.Tests
             using (var session = await this.Factory.CreateAsyncSession())
             {
 
-            }
-        }
-
-        [Fact]
-        public void MappingTest()
-        {
-            using (var session = this.Factory.CreateSession())
-            {
-                var result = session.GetByID<Employee>(1);
-
-                Assert.Throws<DBEntityNonValidTypeException>(() => session.GetByID<int>(2));
-                Assert.Throws<NoDBEntityMappingException>(() => session.GetByID<object>(2));
-                Assert.Throws<NoPrimaryKeyMappingForDBEntityException>(() => session.GetByID<EmployeeNoDBPrimaryKeyMapping>(2));
-                Assert.Throws<DBPrimaryKeyNonSupportedTypeException>(() => session.GetByID<EmployeeWrongPrimaryKeyMapping>(2));
-                Assert.Throws<NoDBPropertyMappingException>(() => session.GetByID<EmployeeNoMappingAttribute>(2));
             }
         }
 

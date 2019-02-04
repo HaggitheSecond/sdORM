@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
-using sdORM.Extensions;
 using sdORM.Mapping.AttributeMapping.Attributes.Entities;
 using sdORM.Mapping.AttributeMapping.Attributes.Properties;
 using sdORM.Mapping.Exceptions;
@@ -13,11 +12,13 @@ namespace sdORM.Mapping.AttributeMapping
 {
     public class AttributeEntityMapping<T> : EntityMapping<T>
     {
-        public override void Map()
+        public override void ValidateAndMap()
         {
             this.ValidateEntity();
             this.Load();
             this.ValidateAfterLoad();
+
+            this.HasBeenValidatedAndMapped = true;
         }
 
         #region Validation
@@ -93,6 +94,8 @@ namespace sdORM.Mapping.AttributeMapping
                 if (columnMetaData == null)
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
             }
+
+            this.HasBeenValidatedAgainstDatabase = true;
         }
 
         #endregion

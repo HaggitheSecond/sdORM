@@ -7,7 +7,7 @@ using sdORM.Session;
 
 namespace sdORM.Mapping
 {
-    public abstract class EntityMapping<T>
+    public abstract class EntityMapping
     {
         protected readonly IList<DBPropertyMapping> _properties;
 
@@ -15,17 +15,30 @@ namespace sdORM.Mapping
         public DBPropertyMapping PrimaryKeyPropertyMapping { get; protected set; }
         public ReadOnlyCollection<DBPropertyMapping> Properties { get; }
 
+        public bool HasBeenValidatedAndMapped { get; protected set; }
+        public bool HasBeenValidatedAgainstDatabase { get; protected set; }
+
         protected EntityMapping()
         {
             this.Properties = new ReadOnlyCollection<DBPropertyMapping>(this._properties = new List<DBPropertyMapping>());
         }
 
-        public abstract void Map();
+        public abstract void ValidateAndMap();
 
         public abstract void ValidateAgainstDatabase(IDataBaseSession session);
 
         public abstract Task ValidateAgainstDatabase(IDataBaseSessionAsync session);
+        
+        public class DBPropertyMapping
+        {
+            public PropertyInfo Property { get; set; }
 
+            public string ColumnName { get; set; }
+        }
+    }
+
+    public abstract class EntityMapping<T> : EntityMapping
+    {
         public object GetPrimaryKeyValue(T entity)
         {
             return this.PrimaryKeyPropertyMapping.Property.GetValue(entity);
@@ -34,14 +47,6 @@ namespace sdORM.Mapping
         public bool IsPrimaryKeyDefaultValue(T entity)
         {
             return this.GetPrimaryKeyValue(entity).Equals(Activator.CreateInstance(this.PrimaryKeyPropertyMapping.Property.PropertyType));
-        }
-
-
-        public class DBPropertyMapping
-        {
-            public PropertyInfo Property { get; set; }
-
-            public string ColumnName { get; set; }
         }
     }
 }

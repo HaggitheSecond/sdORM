@@ -1,39 +1,103 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
+using sdORM.Mapping.AttributeMapping.Attributes.Entities;
+using sdORM.Mapping.Exceptions;
+using sdORM.Session;
 
 namespace sdORM.Mapping
 {
-    public class EntityMappingProvider
+    public abstract class EntityMappingProvider
     {
-        private Dictionary<Type, object> ExistingMappings { get; }
+        private readonly Dictionary<Type, EntityMapping> _mappings;
 
-        // not sure if I'm happy with this...
-        private readonly Type _entityMappingType;
-
-        public EntityMappingProvider(Type entityMappingType)
+        protected EntityMappingProvider()
         {
-            this._entityMappingType = entityMappingType;
-            this.ExistingMappings = new Dictionary<Type, object>();
+            this._mappings =  new Dictionary<Type, EntityMapping>();
         }
 
         public EntityMapping<T> GetMapping<T>()
         {
-            if (this.ExistingMappings.ContainsKey(typeof(T)))
-                return (EntityMapping<T>)this.ExistingMappings[typeof(T)];
-
-            var mapping = this.GenerateEntityMappingForType<T>(typeof(T));
-
-            mapping.Map();
-
-            this.ExistingMappings.Add(typeof(T), mapping);
-
-            return mapping;
+            return this._mappings.ContainsKey(typeof(T))
+                ? (EntityMapping<T>)this._mappings[typeof(T)]
+                : throw new TypeNotMappedException(typeof(T));
         }
-        
-        private EntityMapping<T> GenerateEntityMappingForType<T>(Type type)
+
+        #region Validation
+
+        public void ValidateMappingsAgainstDatabase(IDataBaseSession session)
         {
-            var mappingType = this._entityMappingType.MakeGenericType(type);
-            return (EntityMapping<T>)Activator.CreateInstance(mappingType);
+            foreach (var currentMapping in this._mappings)
+            {
+                currentMapping.Value.ValidateAgainstDatabase(session);
+            }
         }
+
+        public async Task ValidateMappingsAgainstDatabaseAsync(IDataBaseSessionAsync session)
+        {
+            foreach (var currentMapping in this._mappings)
+            {
+                await currentMapping.Value.ValidateAgainstDatabase(session);
+            }
+        }
+
+        #endregion
+
+        #region Internal
+
+        protected abstract EntityMapping CreateGenericEntityMappingInstance(Type type);
+        private void AddMapping(Type type, EntityMapping entityMapping)
+        {
+            entityMapping.ValidateAndMap();
+
+            this._mappings.Add(type, entityMapping);
+        }
+
+        #endregion
+
+        #region AddMappingFromType
+
+        public void AddMapping(Type type)
+        {
+            this.AddMapping(type, this.CreateGenericEntityMappingInstance(type));
+        }
+
+        public void AddMappings(params Type[] @params)
+        {
+            foreach (var currentType in @params)
+            {
+                this.AddMapping(currentType);
+            }
+        }
+
+        #endregion
+
+        #region AddMappingsFromAssembly
+
+        public void AddMappingsFromAssembly(string assemblyString)
+        {
+            this.AddMappingsFromAssembly(Assembly.Load(assemblyString));
+        }
+
+        public void AddMappingsFromAssembly(Type typeInAssembly)
+        {
+            this.AddMappingsFromAssembly(Assembly.GetAssembly(typeInAssembly));
+        }
+
+        public void AddMappingsFromAssembly(Assembly assembly)
+        {
+            var types = assembly.GetTypes();
+
+            foreach (var currentType in types)
+            {
+                if (currentType.GetCustomAttribute<DBEntityAttribute>() == null)
+                    continue;
+
+                this.AddMapping(currentType);
+            }
+        }
+
+        #endregion
     }
 }
