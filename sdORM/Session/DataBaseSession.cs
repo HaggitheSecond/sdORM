@@ -121,6 +121,17 @@ namespace sdORM.Session
             }
         }
 
+        public virtual void Delete<T>(object id)
+        {
+            var mapping = this.EntityMappingProvider.GetMapping<T>();
+            var sql = this.SqlSpecifcProvider.GetSqlForDelete(id, mapping);
+
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            {
+                command.ExecuteNonQuery();
+            }
+        }
+
         public virtual TableMetaData GetTableMetaData(string tableName)
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.

@@ -97,5 +97,37 @@ namespace sdORM.Tests
                 Assert.True(result2 == null);
             }
         }
+
+        [Fact]
+        public void SaveAndDeleteTest()
+        {
+            using (var session = this.Factory.CreateSession())
+            {
+                var result1 = session.Save(new Employee
+                {
+                    FirstName = "does not matter"
+                });
+
+                Assert.True(result1.ID != 0);
+
+                session.Delete<Employee>(result1.ID);
+            }
+        }
+
+        [Fact]
+        public async Task SaveAndDeleteAsyncTest()
+        {
+            using (var session = await this.Factory.CreateAsyncSession())
+            {
+                var result1 = await session.SaveAsync(new Employee
+                {
+                    FirstName = "does not matter"
+                });
+
+                Assert.True(result1.ID != 0);
+
+                await session.Delete<Employee>(result1.ID);
+            }
+        }
     }
 }

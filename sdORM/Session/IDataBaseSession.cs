@@ -70,6 +70,13 @@ namespace sdORM.Session
         T Update<T>(T entity);
 
         /// <summary>
+        /// Deletes the entity specified by the id.
+        /// </summary>
+        /// <typeparam name="T">The entity whose table should be queried.</typeparam>
+        /// <param name="id">The id of the entity to be deleted.</param>
+        void Delete<T>(object id);
+
+        /// <summary>
         /// Gets metadata for the specified table or null if table does not exist.
         /// </summary>
         /// <param name="tableName">The tableName.</param>

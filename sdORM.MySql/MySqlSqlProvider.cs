@@ -110,7 +110,31 @@ namespace sdORM.MySql
                 Parameters = parameters
             };
         }
-        
+
+        public ParameterizedSql GetSqlForDelete<T>(object id, EntityMapping<T> mapping)
+        {
+            var primaryKeyParameterName = "@"+ mapping.PrimaryKeyPropertyMapping.ColumnName;
+            var builder = new StringBuilder("DELETE FROM ")
+                .Append(mapping.TableName)
+                .Append(" WHERE ")
+                .Append(mapping.PrimaryKeyPropertyMapping.ColumnName)
+                .Append("=")
+                .Append(primaryKeyParameterName);
+
+            return new ParameterizedSql
+            {
+                Sql = builder.ToString(),
+                Parameters = new List<SqlParameter>
+                {
+                    new SqlParameter
+                    {
+                        ParameterName = primaryKeyParameterName,
+                        Value = id
+                    }
+                }
+            };
+        }
+
         public string GetSqlForTableMetaData(string tableName)
         {
             return $"SELECT column_name, ordinal_position, data_type, column_type FROM information_schema.columns WHERE table_name = '{tableName}'";

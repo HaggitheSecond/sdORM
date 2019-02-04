@@ -116,6 +116,17 @@ namespace sdORM.Session
             }
         }
 
+        public virtual async Task Delete<T>(object id)
+        {
+            var mapping = this.EntityMappingProvider.GetMapping<T>();
+            var sql = this.SqlSpecifcProvider.GetSqlForDelete(id, mapping);
+
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         public virtual async Task<TableMetaData> GetTableMetaDataAsync(string tableName)
         {
             // See sync version for comment

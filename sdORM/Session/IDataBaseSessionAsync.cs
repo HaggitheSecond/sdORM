@@ -47,6 +47,11 @@ namespace sdORM.Session
         Task<T> UpdateAsync<T>(T entity);
 
         /// <summary>
+        /// The async version of <see cref="IDatabaseSession.Delete{T}"/>.
+        /// </summary>
+        Task Delete<T>(object id);
+
+        /// <summary>
         /// The async version of <see cref="IDatabaseSession.GetTableMetaData{T}"/>.
         /// </summary>
         Task<TableMetaData> GetTableMetaDataAsync(string tableName);

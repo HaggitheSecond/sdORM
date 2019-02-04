@@ -22,6 +22,8 @@ namespace sdORM.Session
 
         ParameterizedSql GetSqlForUpdate<T>(T entity, EntityMapping<T> mapping);
 
+        ParameterizedSql GetSqlForDelete<T>(object id, EntityMapping<T> mapping);
+
         string GetSqlForTableMetaData(string tableName);
         string GetSqlForCheckIfTableExtists(string tableName);
         
