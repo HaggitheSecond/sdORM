@@ -42,9 +42,7 @@ using (var session = this.Factory.CreateSession())
 {
      var savedEntity = session.SaveOrUpdate("yourEntity"); 
 }
-```
-Async version:
-```c#
+
 using (var session = await this.Factory.CreateAsyncSession())
 {
      var savedEntity = await session.SaveOrUpdate("yourEntity"); 
@@ -54,13 +52,11 @@ using (var session = await this.Factory.CreateAsyncSession())
 ##### A simple Query
 
 ```c#
- using (var session = this.Factory.CreateSession())
- {
-      var result = session.Query<Employee>(f => f.FirstName=="Jaina");
- }
-```
-Async version:
-```c#
+using (var session = this.Factory.CreateSession())
+{
+     var result = session.Query<Employee>(f => f.FirstName=="Jaina");
+}
+ 
 using (var session = await this.Factory.CreateAsyncSession())
 {
      var result = session.Query<Employee>(f => f.LastName=="Proudmoore");
