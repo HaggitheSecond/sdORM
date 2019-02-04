@@ -7,26 +7,28 @@ using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping;
 
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
+
 namespace sdORM.Session
 {
-    public abstract class DataBaseSession : DataBaseSessionBase, IDataBaseSession
+    public class DataBaseSession : DataBaseSessionBase, IDataBaseSession
     {
-        protected DataBaseSession(DbConnection connection, EntityMappingProvider entityMappingProvider)
-            : base(connection, entityMappingProvider)
+        public DataBaseSession(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
+            : base(connection, entityMappingProvider, sqlSpecifcProvider)
         {
 
         }
 
         public virtual void Connect()
         {
-            this._connection.Open();
+            this.Connection.Open();
         }
 
         public virtual IList<T> Query<T>() where T : new()
         {
             return this.Query<T>(new ParameterizedSql
             {
-                Sql = this.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
+                Sql = this.SqlSpecifcProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
                 Parameters = new List<SqlParameter>()
             });
         }
@@ -35,7 +37,7 @@ namespace sdORM.Session
         {
             Guard.NotNull(predicate, nameof(predicate));
 
-            return this.Query<T>(this.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
+            return this.Query<T>(this.SqlSpecifcProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecifcProvider.ExpressionToSqlProvider));
         }
 
         public virtual IList<T> Query<T>(ParameterizedSql parameterizedSql) where T : new()
@@ -44,7 +46,7 @@ namespace sdORM.Session
 
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var command = this.GenerateIDBCommand(parameterizedSql))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, parameterizedSql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -66,9 +68,9 @@ namespace sdORM.Session
             Guard.NotNull(id, nameof(id));
 
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.GetSqlForGetById(id, mapping);
+            var sql = this.SqlSpecifcProvider.GetSqlForGetById(id, mapping);
 
-            using (var command = this.GenerateIDBCommand(sql))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -94,13 +96,13 @@ namespace sdORM.Session
         public virtual T Save<T>(T entity)
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.GetSqlForSave(entity, mapping);
+            var sql = this.SqlSpecifcProvider.GetSqlForSave(entity, mapping);
 
-            using (var command = this.GenerateIDBCommand(sql))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             {
                 command.ExecuteNonQuery();
 
-                this.SetIdAfterSave(entity, command, mapping);
+                this.SqlSpecifcProvider.SetIdAfterSave(entity, command, mapping);
 
                 return entity;
             }
@@ -109,9 +111,9 @@ namespace sdORM.Session
         public virtual T Update<T>(T entity)
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.GetSqlForUpdate(entity, mapping);
+            var sql = this.SqlSpecifcProvider.GetSqlForUpdate(entity, mapping);
 
-            using (var command = this.GenerateIDBCommand(sql))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             {
                 command.ExecuteNonQuery();
                 return entity;
@@ -122,14 +124,14 @@ namespace sdORM.Session
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
             // Throwing an exception might be the better option but simply returning null is consitent with how the database does it. Not sure...
-            using (var cmd = this.GenerateIDBCommand(this.GetSqlForCheckIfTableExtists(tableName)))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var cmd = this.GenerateIDBCommand(this.GetSqlForTableMetaData(tableName)))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 var table = new TableMetaData

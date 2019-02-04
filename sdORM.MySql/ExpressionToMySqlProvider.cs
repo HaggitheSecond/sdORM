@@ -5,10 +5,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
+using sdORM.Session;
 
 namespace sdORM.MySql
 {
-    public class ExpressionToMySqlProvider
+    public class ExpressionToMySqlProvider : IExpressionToSqlProvider
     {
         public ParameterizedSql BuildSqlQuery<T>(Expression<Func<T, bool>> expression)
         {

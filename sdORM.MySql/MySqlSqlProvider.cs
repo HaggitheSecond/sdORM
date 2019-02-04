@@ -8,12 +8,15 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Mapping;
+using sdORM.Session;
 
 namespace sdORM.MySql
 {
-    public class MySqlSqlProvider
+    public class MySqlSqlProvider : ISqlSpecifcProvider
     {
-        public ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping, ExpressionToMySqlProvider provider)
+        public IExpressionToSqlProvider ExpressionToSqlProvider => new ExpressionToMySqlProvider();
+
+        public ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping, IExpressionToSqlProvider provider) where T : new()
         {
             var wherePart = provider.BuildSqlQuery(predicate);
 
@@ -31,7 +34,7 @@ namespace sdORM.MySql
                 Parameters = wherePart.Parameters
             };
         }
-        
+
         public ParameterizedSql GetSqlForGetById<T>(object id, EntityMapping<T> mapping)
         {
             var builder = this.GetSelectStatementForMapping(mapping)
@@ -117,7 +120,33 @@ namespace sdORM.MySql
         {
             return $"SHOW TABLES LIKE '{tableName}'";
         }
-        
+
+        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql)
+        {
+            var command = this.GenerateIDBCommand(connection, sql.Sql);
+
+            foreach (var currentParameter in sql.Parameters)
+            {
+                var parameter = command.CreateParameter();
+
+                parameter.ParameterName = currentParameter.ParameterName;
+                parameter.Value = currentParameter.Value;
+
+                command.Parameters.Add(parameter);
+            }
+
+            return command;
+        }
+
+        public DbCommand GenerateIDBCommand(DbConnection connection, string sql)
+        {
+            var command = connection.CreateCommand();
+
+            command.CommandText = sql;
+
+            return command;
+        }
+
         public StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping)
         {
             return new StringBuilder()

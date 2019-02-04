@@ -3,7 +3,7 @@ using sdORM.Common;
 using sdORM.Mapping;
 using sdORM.Mapping.AttributeMapping;
 using sdORM.Mapping.Exceptions;
-using sdORM.MySql.Session;
+using sdORM.MySql;
 using sdORM.Tests.Entities;
 using Xunit;
 
@@ -11,20 +11,27 @@ namespace sdORM.Tests
 {
     public class MySqlTests
     {
-        private readonly DataBaseSessionFactory _factory = new MySqlDataBaseSessionFactory(new SdOrmConfig
+        public DataBaseSessionFactory Factory
         {
-            //Server = "b5-312-pc02",
-            //DataBase = "mydb",
-            //Password = "3r1k-uk",
-            //UserName = "user2"
-            ConnectionString = "Server=localhost; database=develop; UID=root; password=;",
-            Mappings = new EntityMappingProvider(typeof(AttributeEntityMapping<>))
-        });
+            get
+            {
+                var factory = new MySqlDataBaseSessionFactory(new SdOrmConfig
+                {
+                    //ConnectionString = "Server=b5-312-pc02; database=mydb; UID=3r1k-uk; password=user2;
+                    ConnectionString = "Server=localhost; database=develop; UID=root; password=;",
+                    Mappings = new EntityMappingProvider(typeof(AttributeEntityMapping<>))
+                });
 
+                factory.Initalize();
+
+                return factory;
+            }
+        }
+        
         [Fact]
         public void ConnectionTest()
         {
-            using (var session = this._factory.CreateSession())
+            using (var session = this.Factory.CreateSession())
             {
 
             }
@@ -33,7 +40,7 @@ namespace sdORM.Tests
         [Fact]
         public async Task ConnectionAsyncTest()
         {
-            using (var session = await this._factory.CreateAsyncSession())
+            using (var session = await this.Factory.CreateAsyncSession())
             {
 
             }
@@ -42,7 +49,7 @@ namespace sdORM.Tests
         [Fact]
         public void MappingTest()
         {
-            using (var session = this._factory.CreateSession())
+            using (var session = this.Factory.CreateSession())
             {
                 var result = session.GetByID<Employee>(1);
 
@@ -57,7 +64,7 @@ namespace sdORM.Tests
         [Fact]
         public void QueryTest()
         {
-            using (var session = this._factory.CreateSession())
+            using (var session = this.Factory.CreateSession())
             {
                 var result = session.Query<Employee>(f => f.ID == 1);
 
@@ -69,7 +76,7 @@ namespace sdORM.Tests
         [Fact]
         public async Task QueryTestAsync()
         {
-            using (var session = await this._factory.CreateAsyncSession())
+            using (var session = await this.Factory.CreateAsyncSession())
             {
                 var result = await session.QueryAsync<Employee>(f => f.ID == 1);
 
@@ -81,7 +88,7 @@ namespace sdORM.Tests
         [Fact]
         public void GetByIdTest()
         {
-            using (var session = this._factory.CreateSession())
+            using (var session = this.Factory.CreateSession())
             {
                 var result1 = session.GetByID<Employee>(1);
 
@@ -95,7 +102,7 @@ namespace sdORM.Tests
         [Fact]
         public async Task GetByIdAsyncTest()
         {
-            using (var session = await this._factory.CreateAsyncSession())
+            using (var session = await this.Factory.CreateAsyncSession())
             {
                 var result1 = await session.GetByIDAsync<Employee>(1);
                 Assert.True(result1 != null);

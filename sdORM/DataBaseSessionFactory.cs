@@ -8,23 +8,31 @@ namespace sdORM
     {
         protected readonly SdOrmConfig _config;
 
+        public bool IsInitialized { get; protected set; }
+
         protected DataBaseSessionFactory(SdOrmConfig config)
         {
             this._config = config;
         }
 
-        public async Task InitializeAsync()
-        {
-        }
+        /// <summary>
+        /// Will initialize the factory, making sure everything is ready for sessions to be created.
+        /// </summary>
+        public abstract void Initalize();
 
         /// <summary>
-        /// Will create a <see cref="IDataBaseSession"/> with the spcified connection and open it.
+        /// The async version of <see cref="Initalize"/>.
+        /// </summary>
+        public abstract Task InitializeAsync();
+        
+        /// <summary>
+        /// Will create a <see cref="IDataBaseSession"/> with the specified connection and open it.
         /// </summary>
         /// <returns>The created databasesession.</returns>
         public abstract IDataBaseSession CreateSession();
 
         /// <summary>
-        /// Will asynchronously create a <see cref="IDataBaseSessionAsync"/> with the spcified connection and open it.
+        /// Will asynchronously create a <see cref="IDataBaseSessionAsync"/> with the specified connection and open it.
         /// </summary>
         /// <returns>The created databasesession.</returns>
         public abstract Task<IDataBaseSessionAsync> CreateAsyncSession();
