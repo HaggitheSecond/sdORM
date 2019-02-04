@@ -7,14 +7,14 @@ using sdORM.Session;
 
 namespace sdORM
 {
-    public abstract class DataBaseSessionFactory
+    public abstract class DatabaseSessionFactory
     {
         protected readonly DbConnection _connection;
         protected readonly EntityMappingProvider _mappingProvider;
         
         public bool IsInitialized { get; protected set; }
 
-        protected DataBaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
+        protected DatabaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
         {
             Guard.NotNull(connection, nameof(connection));
             Guard.NotNull(mappingProvider, nameof(mappingProvider));
@@ -34,15 +34,15 @@ namespace sdORM
         public abstract Task InitializeAsync();
         
         /// <summary>
-        /// Will create a <see cref="IDataBaseSession"/> with the specified connection and open it.
+        /// Will create a <see cref="IDatabaseSession"/> with the specified connection and open it.
         /// </summary>
-        /// <returns>The created databasesession.</returns>
-        public abstract IDataBaseSession CreateSession();
+        /// <returns>The created Databasesession.</returns>
+        public abstract IDatabaseSession CreateSession();
 
         /// <summary>
-        /// Will asynchronously create a <see cref="IDataBaseSessionAsync"/> with the specified connection and open it.
+        /// Will asynchronously create a <see cref="IDatabaseSessionAsync"/> with the specified connection and open it.
         /// </summary>
-        /// <returns>The created databasesession.</returns>
-        public abstract Task<IDataBaseSessionAsync> CreateAsyncSession();
+        /// <returns>The created Databasesession.</returns>
+        public abstract Task<IDatabaseSessionAsync> CreateAsyncSession();
     }
 }

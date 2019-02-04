@@ -10,7 +10,7 @@ namespace sdORM.Tests
 {
     public class MySqlTests
     {
-        public DataBaseSessionFactory Factory
+        public DatabaseSessionFactory Factory
         {
             get
             {
@@ -18,10 +18,10 @@ namespace sdORM.Tests
 
                 attributeEntityMappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
 
-                //var connectionString = "Server=b5-312-pc02; database=mydb; UID=3r1k-uk; password=user2;";
-                var connectionString = "Server=localhost; database=develop; UID=root; password=;";
+                //var connectionString = "Server=b5-312-pc02; Database=mydb; UID=3r1k-uk; password=user2;";
+                var connectionString = "Server=localhost; Database=develop; UID=root; password=;";
                 
-                var factory = new MySqlDataBaseSessionFactory(connectionString, attributeEntityMappingProvider);
+                var factory = new MySqlDatabaseSessionFactory(connectionString, attributeEntityMappingProvider);
 
                 factory.Initalize();
 

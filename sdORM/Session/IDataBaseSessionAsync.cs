@@ -6,48 +6,48 @@ using sdORM.Common.SqlSpecifics;
 
 namespace sdORM.Session
 {
-    public interface IDataBaseSessionAsync : IDisposable
+    public interface IDatabaseSessionAsync : IDisposable
     {
         /// <summary>
-        /// The async version of the Connect() method in IDataBaseSession.
-        /// <seealso cref="IDataBaseSession"/>
+        /// The async version of the Connect() method in IDatabaseSession.
+        /// <seealso cref="IDatabaseSession"/>
         /// </summary>
         Task ConnectAsync();
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.Query{T}()"/>.
+        /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>() where T : new();
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.Query{T}()"/>.
+        /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new();
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.Query{T}(ParameterizedSql)"/>.
+        /// The async version of <see cref="IDatabaseSession.Query{T}(ParameterizedSql)"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>(ParameterizedSql sql) where T : new();
 
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.GetByID{T}"/>.
+        /// The async version of <see cref="IDatabaseSession.GetByID{T}"/>.
         /// </summary>
         Task<T> GetByIDAsync<T>(object id) where T : new();
 
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.SaveOrUpdate{T}"/>.
+        /// The async version of <see cref="IDatabaseSession.SaveOrUpdate{T}"/>.
         /// </summary>
         Task<T> SaveOrUpdateAsync<T>(T entity);
 
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.Save{T}"/>.
+        /// The async version of <see cref="IDatabaseSession.Save{T}"/>.
         /// </summary>
         Task<T> SaveAsync<T>(T entity);
 
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.Update{T}"/>.
+        /// The async version of <see cref="IDatabaseSession.Update{T}"/>.
         /// </summary>
         Task<T> UpdateAsync<T>(T entity);
 
         /// <summary>
-        /// The async version of <see cref="IDataBaseSession.GetTableMetaData{T}"/>.
+        /// The async version of <see cref="IDatabaseSession.GetTableMetaData{T}"/>.
         /// </summary>
         Task<TableMetaData> GetTableMetaDataAsync(string tableName);
     }

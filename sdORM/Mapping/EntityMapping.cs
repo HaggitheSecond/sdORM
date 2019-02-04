@@ -25,9 +25,9 @@ namespace sdORM.Mapping
 
         public abstract void ValidateAndMap();
 
-        public abstract void ValidateAgainstDatabase(IDataBaseSession session);
+        public abstract void ValidateAgainstDatabase(IDatabaseSession session);
 
-        public abstract Task ValidateAgainstDatabase(IDataBaseSessionAsync session);
+        public abstract Task ValidateAgainstDatabase(IDatabaseSessionAsync session);
         
         public class DBPropertyMapping
         {

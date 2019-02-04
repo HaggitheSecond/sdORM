@@ -67,12 +67,12 @@ namespace sdORM.Mapping.AttributeMapping
                 throw new NoPrimaryKeyMappingForDBEntityException(typeof(T));
         }
 
-        public override void ValidateAgainstDatabase(IDataBaseSession session)
+        public override void ValidateAgainstDatabase(IDatabaseSession session)
         {
             this.ValidateAgainstTableMetaData(session.GetTableMetaData(this.TableName));
         }
 
-        public override async Task ValidateAgainstDatabase(IDataBaseSessionAsync session)
+        public override async Task ValidateAgainstDatabase(IDatabaseSessionAsync session)
         {
             this.ValidateAgainstTableMetaData(await session.GetTableMetaDataAsync(this.TableName));
         }

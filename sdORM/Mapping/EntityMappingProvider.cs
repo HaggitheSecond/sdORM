@@ -26,7 +26,7 @@ namespace sdORM.Mapping
 
         #region Validation
 
-        public void ValidateMappingsAgainstDatabase(IDataBaseSession session)
+        public void ValidateMappingsAgainstDatabase(IDatabaseSession session)
         {
             foreach (var currentMapping in this._mappings)
             {
@@ -34,7 +34,7 @@ namespace sdORM.Mapping
             }
         }
 
-        public async Task ValidateMappingsAgainstDatabaseAsync(IDataBaseSessionAsync session)
+        public async Task ValidateMappingsAgainstDatabaseAsync(IDatabaseSessionAsync session)
         {
             foreach (var currentMapping in this._mappings)
             {

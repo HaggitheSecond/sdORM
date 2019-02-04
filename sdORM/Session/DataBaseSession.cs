@@ -12,9 +12,9 @@ using sdORM.Mapping;
 
 namespace sdORM.Session
 {
-    public class DataBaseSession : DataBaseSessionBase, IDataBaseSession
+    public class DatabaseSession : DatabaseSessionBase, IDatabaseSession
     {
-        public DataBaseSession(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
+        public DatabaseSession(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
             : base(connection, entityMappingProvider, sqlSpecifcProvider)
         {
 
@@ -124,7 +124,7 @@ namespace sdORM.Session
         public virtual TableMetaData GetTableMetaData(string tableName)
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
-            // Throwing an exception might be the better option but simply returning null is consitent with how the database does it. Not sure...
+            // Throwing an exception might be the better option but simply returning null is consitent with how the Database does it. Not sure...
             using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName)))
             using (var reader = cmd.ExecuteReader())
             {

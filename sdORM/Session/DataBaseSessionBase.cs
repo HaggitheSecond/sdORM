@@ -5,13 +5,13 @@ using sdORM.Mapping;
 
 namespace sdORM.Session
 {
-    public abstract class DataBaseSessionBase
+    public abstract class DatabaseSessionBase
     {
         protected DbConnection Connection { get; }
         protected ISqlSpecifcProvider SqlSpecifcProvider { get; }
         protected EntityMappingProvider EntityMappingProvider { get; }
 
-        protected DataBaseSessionBase(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
+        protected DatabaseSessionBase(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
         {
             Guard.NotNull(connection, nameof(connection));
             Guard.NotNull(entityMappingProvider, nameof(entityMappingProvider));

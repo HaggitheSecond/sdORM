@@ -13,9 +13,9 @@ using sdORM.Mapping;
 
 namespace sdORM.Session
 {
-    public class DataBaseSessionAsync : DataBaseSessionBase, IDataBaseSessionAsync
+    public class DatabaseSessionAsync : DatabaseSessionBase, IDatabaseSessionAsync
     {
-        public DataBaseSessionAsync(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
+        public DatabaseSessionAsync(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
             : base(connection, entityMappingProvider, sqlSpecifcProvider)
         {
 

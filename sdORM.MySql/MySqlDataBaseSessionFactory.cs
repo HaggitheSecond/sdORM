@@ -8,9 +8,9 @@ using sdORM.Session.Exceptions;
 
 namespace sdORM.MySql
 {
-    public class MySqlDataBaseSessionFactory : DataBaseSessionFactory
+    public class MySqlDatabaseSessionFactory : DatabaseSessionFactory
     {
-        public MySqlDataBaseSessionFactory(string connectionString, EntityMappingProvider mappingProvider)
+        public MySqlDatabaseSessionFactory(string connectionString, EntityMappingProvider mappingProvider)
             : base(new MySqlConnection(connectionString), mappingProvider)
         {
 
@@ -36,22 +36,22 @@ namespace sdORM.MySql
             }
         }
 
-        public override IDataBaseSession CreateSession()
+        public override IDatabaseSession CreateSession()
         {
             if (this.IsInitialized == false)
-                throw new DataBaseSessionFactoryNotInitializedException(this.GetType());
+                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
 
-            var session = new DataBaseSession(this._connection, this._mappingProvider, new MySqlSqlProvider());
+            var session = new DatabaseSession(this._connection, this._mappingProvider, new MySqlSqlProvider());
             session.Connect();
             return session;
         }
 
-        public override async Task<IDataBaseSessionAsync> CreateAsyncSession()
+        public override async Task<IDatabaseSessionAsync> CreateAsyncSession()
         {
             if (this.IsInitialized == false)
-                throw new DataBaseSessionFactoryNotInitializedException(this.GetType());
+                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
 
-            var session = new DataBaseSessionAsync(this._connection, this._mappingProvider, new MySqlSqlProvider());
+            var session = new DatabaseSessionAsync(this._connection, this._mappingProvider, new MySqlSqlProvider());
             await session.ConnectAsync();
             return session;
         }

@@ -5,22 +5,22 @@ using sdORM.Common.SqlSpecifics;
 
 namespace sdORM.Session
 {
-    public interface IDataBaseSession : IDisposable
+    public interface IDatabaseSession : IDisposable
     {
         /// <summary>
-        /// Creates the connection. This should never be used if you're using the DataBaseSessionFactory.
+        /// Creates the connection. This should never be used if you're using the DatabaseSessionFactory.
         /// </summary>
         void Connect();
 
         /// <summary>
-        /// Queries the database for ALL entities in the table.
+        /// Queries the Database for ALL entities in the table.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>
         /// <returns>All entities in the table.</returns>
         IList<T> Query<T>() where T : new();
 
         /// <summary>
-        /// Queries the database for all entities that match the predicate in the table.
+        /// Queries the Database for all entities that match the predicate in the table.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>
         /// <param name="predicate">The predicate by which the entities will be filtered.</param>
@@ -28,7 +28,7 @@ namespace sdORM.Session
         IList<T> Query<T>(Expression<Func<T, bool>> predicate) where T : new();
 
         /// <summary>
-        /// Queries the database for all entities with the specified sql query.
+        /// Queries the Database for all entities with the specified sql query.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>
         /// <param name="parameterizedSql">The raw sql by which the table will be queried.</param>
@@ -52,7 +52,7 @@ namespace sdORM.Session
         T SaveOrUpdate<T>(T entity);
 
         /// <summary>
-        /// Saves a new entity. Will throw an exeception if entity is already saved in the database.
+        /// Saves a new entity. Will throw an exeception if entity is already saved in the Database.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>
         /// <param name="entity">The entity to be updated.</param>
