@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using sdORM.Common;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
+using sdORM.Helper;
 using sdORM.Mapping;
 
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global

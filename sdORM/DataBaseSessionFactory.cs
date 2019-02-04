@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Helper;
 using sdORM.Mapping;
 using sdORM.Session;
 
@@ -13,8 +14,11 @@ namespace sdORM
         
         public bool IsInitialized { get; protected set; }
 
-        public DataBaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
+        protected DataBaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
         {
+            Guard.NotNull(connection, nameof(connection));
+            Guard.NotNull(mappingProvider, nameof(mappingProvider));
+
             this._connection = connection;
             this._mappingProvider = mappingProvider;
         }

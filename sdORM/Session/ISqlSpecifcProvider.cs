@@ -24,12 +24,11 @@ namespace sdORM.Session
 
         string GetSqlForTableMetaData(string tableName);
         string GetSqlForCheckIfTableExtists(string tableName);
-
-        DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql);
-
-        DbCommand GenerateIDBCommand(DbConnection connection, string sql);
-
+        
         StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping);
         IEnumerable<SqlParameter> GetParametersForMapping<T>(T entity, EntityMapping<T> mapping);
+
+        DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql);
+        DbCommand GenerateIDBCommand(DbConnection connection, string sql);
     }
 }

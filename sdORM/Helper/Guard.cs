@@ -1,7 +1,8 @@
 ﻿using System;
+
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
-namespace sdORM.Common
+namespace sdORM.Helper
 {
     public static class Guard
     {
