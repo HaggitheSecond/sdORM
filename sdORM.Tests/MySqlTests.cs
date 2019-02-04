@@ -18,19 +18,17 @@ namespace sdORM.Tests
 
                 attributeEntityMappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
 
-                var factory = new MySqlDataBaseSessionFactory(new SdOrmConfig
-                {
-                    //ConnectionString = "Server=b5-312-pc02; database=mydb; UID=3r1k-uk; password=user2;
-                    ConnectionString = "Server=localhost; database=develop; UID=root; password=;",
-                    Mappings = attributeEntityMappingProvider
-                });
+                //var connectionString = "Server=b5-312-pc02; database=mydb; UID=3r1k-uk; password=user2;";
+                var connectionString = "Server=localhost; database=develop; UID=root; password=;";
+                
+                var factory = new MySqlDataBaseSessionFactory(connectionString, attributeEntityMappingProvider);
 
                 factory.Initalize();
 
                 return factory;
             }
         }
-        
+
         [Fact]
         public void ConnectionTest()
         {

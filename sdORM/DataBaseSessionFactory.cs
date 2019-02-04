@@ -1,20 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System.Data.Common;
+using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Mapping;
 using sdORM.Session;
 
 namespace sdORM
 {
     public abstract class DataBaseSessionFactory
     {
-        protected readonly SdOrmConfig _config;
-
+        protected readonly DbConnection _connection;
+        protected readonly EntityMappingProvider _mappingProvider;
+        
         public bool IsInitialized { get; protected set; }
 
-        protected DataBaseSessionFactory(SdOrmConfig config)
+        public DataBaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
         {
-            this._config = config;
+            this._connection = connection;
+            this._mappingProvider = mappingProvider;
         }
-        
+
         /// <summary>
         /// Will initialize the factory, making sure everything is ready for sessions to be created.
         /// </summary>
