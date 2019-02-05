@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
+using sdORM.Helper;
 using sdORM.Mapping.AttributeMapping.Attributes.Entities;
 using sdORM.Mapping.AttributeMapping.Attributes.Properties;
 using sdORM.Mapping.Exceptions;
@@ -118,14 +119,17 @@ namespace sdORM.Mapping.AttributeMapping
             {
                 if (currentProperty.GetCustomAttribute<DBIgnoreAttribute>() != null)
                     continue;
-                
+
+                if (SqlDbTypeHelper.IsValidSqlDbType(currentProperty.PropertyType) == false)
+                    throw new DBPropertyNonValidTypeException(type, currentProperty);
+
                 var primaryKeyAttribute = currentProperty.GetCustomAttribute<DBPrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
                 {
                     var columnName = string.IsNullOrWhiteSpace(primaryKeyAttribute.ColumnName) == false
                         ? primaryKeyAttribute.ColumnName
                         : currentProperty.Name;
-
+                    
                     this.PrimaryKeyPropertyMapping = new DBPropertyMapping
                     {
                         ColumnName = columnName,
