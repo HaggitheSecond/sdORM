@@ -38,7 +38,6 @@ namespace sdORM.Extensions
             return new ColumnMetaData
             {
                 ColumnName = self.GetString("column_name"),
-                OrdinalPosition = self.GetInt32("ordinal_position"),
                 DataType = self.GetString("data_type"),
                 ColumnType = self.GetString("column_type"),
             };

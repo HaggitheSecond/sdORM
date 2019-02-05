@@ -137,7 +137,7 @@ namespace sdORM.MySql
 
         public string GetSqlForTableMetaData(string tableName)
         {
-            return $"SELECT column_name, ordinal_position, data_type, column_type FROM information_schema.columns WHERE table_name = '{tableName}'";
+            return $"SELECT column_name, data_type, column_type FROM information_schema.columns WHERE table_name = '{tableName}'";
         }
 
         public string GetSqlForCheckIfTableExtists(string tableName)
