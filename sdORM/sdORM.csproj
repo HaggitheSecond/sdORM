@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/HaggitheSecond/sdORM</PackageProjectUrl>
+    <Description>sdORM is a small, very basic ORM. It's still in developement and in its early stages.
+Take a look on github: https://github.com/HaggitheSecond/sdORM</Description>
+    <PackageLicenseUrl>https://github.com/HaggitheSecond/sdORM/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
 </Project>
