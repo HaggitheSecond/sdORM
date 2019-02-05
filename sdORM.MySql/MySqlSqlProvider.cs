@@ -57,7 +57,7 @@ namespace sdORM.MySql
                 }
             };
         }
-        
+
         public void SetIdAfterSave<T>(T entity, IDbCommand command, EntityMapping<T> mapping)
         {
             var mySqlCommand = (MySqlCommand)command;
@@ -89,7 +89,7 @@ namespace sdORM.MySql
                 Parameters = parameters
             };
         }
-        
+
         public ParameterizedSql GetSqlForUpdate<T>(T entity, EntityMapping<T> mapping)
         {
             if (mapping.IsPrimaryKeyDefaultValue(entity))
@@ -114,7 +114,7 @@ namespace sdORM.MySql
 
         public ParameterizedSql GetSqlForDelete<T>(object id, EntityMapping<T> mapping)
         {
-            var primaryKeyParameterName = "@"+ mapping.PrimaryKeyPropertyMapping.ColumnName;
+            var primaryKeyParameterName = "@" + mapping.PrimaryKeyPropertyMapping.ColumnName;
             var builder = new StringBuilder("DELETE FROM ")
                 .Append(mapping.TableName)
                 .Append(" WHERE ")
@@ -146,7 +146,7 @@ namespace sdORM.MySql
             return $"SHOW TABLES LIKE '{tableName}'";
         }
 
-        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction)
+        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction = null)
         {
             var command = this.GenerateIDBCommand(connection, sql.Sql, transaction);
 
@@ -163,12 +163,14 @@ namespace sdORM.MySql
             return command;
         }
 
-        public DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction)
+        public DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction = null)
         {
             var command = connection.CreateCommand();
 
             command.CommandText = sql;
-            command.Transaction = transaction;
+
+            if (transaction != null)
+                command.Transaction = transaction;
 
             return command;
         }

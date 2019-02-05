@@ -35,16 +35,18 @@ namespace sdORM.Tests
         {
             using (var session = this.Factory.CreateSession())
             {
-                //var temp2 = session.Query<Employee>(f => f.LastName == "Clark");
 
-                //var employee = new Employee
-                //{
-                //    Birthday = DateTime.MinValue,
-                //    FirstName = "John D.",
-                //    LastName = "Glantz",
-                //    Status = EmployeeStatus.Retired
-                //};
-                //var temp = session.Save(employee);
+                var employee = new Employee
+                {
+                    Birthday = DateTime.MinValue,
+                    FirstName = "dunno",
+                    LastName = "House",
+                    Status = EmployeeStatus.Retired,
+                    Salary = 42
+                };
+                var temp = session.Save(employee);
+
+                var temp2 = session.Query<Employee>();
             }
         }
 

@@ -44,8 +44,7 @@ namespace sdORM.Session
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = await command.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
@@ -67,8 +66,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForGetById(id, mapping);
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = await command.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
@@ -101,6 +99,7 @@ namespace sdORM.Session
             {
                 await command.ExecuteNonQueryAsync();
 
+                transaction.Commit();
                 this.SqlSpecifcProvider.SetIdAfterSave(entity, command, mapping);
 
                 return entity;
@@ -116,6 +115,7 @@ namespace sdORM.Session
             using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 await command.ExecuteNonQueryAsync();
+                transaction.Commit();
                 return entity;
             }
         }
@@ -129,22 +129,21 @@ namespace sdORM.Session
             using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 await command.ExecuteNonQueryAsync();
+                transaction.Commit();
             }
         }
 
         public virtual async Task<TableMetaData> GetTableMetaDataAsync(string tableName)
         {
             // See sync version for comment
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName), transaction))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName), transaction))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 var table = new TableMetaData

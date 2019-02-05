@@ -31,6 +31,11 @@ namespace sdORM.Tests.Entities
         public int Salary { get; set; }
     }
 
+    public class WAT
+    {
+        public string ActualThingy { get; set; }
+    }
+
     public enum EmployeeStatus
     {
         Active,

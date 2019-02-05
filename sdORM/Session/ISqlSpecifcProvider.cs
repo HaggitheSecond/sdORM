@@ -30,7 +30,7 @@ namespace sdORM.Session
         StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping);
         IEnumerable<SqlParameter> GetParametersForMapping<T>(T entity, EntityMapping<T> mapping);
 
-        DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction);
-        DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction);
+        DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction = null);
+        DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction = null);
     }
 }

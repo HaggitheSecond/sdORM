@@ -47,8 +47,7 @@ namespace sdORM.Session
 
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -72,8 +71,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForGetById(id, mapping);
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -106,8 +104,10 @@ namespace sdORM.Session
             {
 
                 command.ExecuteNonQuery();
-                
+                transaction.Commit();
+
                 this.SqlSpecifcProvider.SetIdAfterSave(entity, command, mapping);
+
 
                 return entity;
             }
@@ -122,6 +122,7 @@ namespace sdORM.Session
             using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 command.ExecuteNonQuery();
+                transaction.Commit();
                 return entity;
             }
         }
@@ -135,6 +136,7 @@ namespace sdORM.Session
             using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 command.ExecuteNonQuery();
+                transaction.Commit();
             }
         }
 
@@ -142,16 +144,14 @@ namespace sdORM.Session
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
             // Throwing an exception might be the better option but simply returning null is consitent with how the Database does it. Not sure...
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName), transaction))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName), transaction))
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 var table = new TableMetaData
