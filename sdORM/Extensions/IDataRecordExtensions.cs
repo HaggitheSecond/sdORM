@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Mapping;
 
@@ -16,6 +17,9 @@ namespace sdORM.Extensions
             foreach (var currentProperty in mapping.Properties)
             {
                 var value = self.GetValue(self.GetOrdinal(currentProperty.ColumnName));
+
+                if (value == DBNull.Value)
+                    continue;
 
                 currentProperty.Property.SetValue(entity, value);
             }
