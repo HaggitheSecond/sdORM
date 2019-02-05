@@ -34,7 +34,7 @@ await factory.InitalizeAsync();
 
 After this your factory is set up, all entities are validated and you can start using CreateSession() and CreateAsyncSession().
 
-#### Examples
+### Examples
 
 ##### SaveOrUpdate
 ```c#
@@ -45,7 +45,7 @@ using (var session = this.Factory.CreateSession())
 
 using (var session = await this.Factory.CreateAsyncSession())
 {
-     var savedEntity = await session.SaveOrUpdate("yourEntity"); 
+     var savedEntity = await session.SaveOrUpdateAsync("yourEntity"); 
 }
 ```
 
@@ -59,6 +59,32 @@ using (var session = this.Factory.CreateSession())
  
 using (var session = await this.Factory.CreateAsyncSession())
 {
-     var result = session.Query<Employee>(f => f.LastName=="Proudmoore");
+     var result = await session.QueryAsync<Employee>(f => f.LastName=="Proudmoore");
+}
+```
+
+##### Entity with attribute mapping
+
+```c#
+[DBEntity]
+public class Employee
+{
+     [DBPrimaryKey]
+     public int ID { get; set; }
+
+     [DBProperty]
+     public string FirstName { get; set; }
+
+     [DBProperty]
+     public string LastName { get; set; }
+
+     [DBProperty]
+     public DateTime Birthday { get; set; }
+
+     [DBProperty]
+     public EmployeeStatus Status { get; set; }
+
+     [DBIgnore]
+     public int Salary { get; set; }
 }
 ```
