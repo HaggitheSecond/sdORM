@@ -26,6 +26,9 @@ namespace sdORM.Tests.Entities
 
         [DBProperty]
         public EmployeeStatus Status { get; set; }
+
+        [DBProperty]
+        public int Salary { get; set; }
     }
 
     public enum EmployeeStatus

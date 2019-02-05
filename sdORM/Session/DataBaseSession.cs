@@ -41,13 +41,14 @@ namespace sdORM.Session
             return this.Query<T>(this.SqlSpecifcProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecifcProvider.ExpressionToSqlProvider));
         }
 
-        public virtual IList<T> Query<T>(ParameterizedSql parameterizedSql) where T : new()
+        public virtual IList<T> Query<T>(ParameterizedSql sql) where T : new()
         {
-            Guard.NotNull(parameterizedSql, nameof(parameterizedSql));
+            Guard.NotNull(sql, nameof(sql));
 
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, parameterizedSql))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -71,7 +72,8 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForGetById(id, mapping);
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -99,10 +101,12 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForSave(entity, mapping);
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
-                command.ExecuteNonQuery();
 
+                command.ExecuteNonQuery();
+                
                 this.SqlSpecifcProvider.SetIdAfterSave(entity, command, mapping);
 
                 return entity;
@@ -114,7 +118,8 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForUpdate(entity, mapping);
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 command.ExecuteNonQuery();
                 return entity;
@@ -126,7 +131,8 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecifcProvider.GetSqlForDelete(id, mapping);
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 command.ExecuteNonQuery();
             }
@@ -136,14 +142,16 @@ namespace sdORM.Session
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
             // Throwing an exception might be the better option but simply returning null is consitent with how the Database does it. Not sure...
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName)))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName), transaction))
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
+            using (var transaction = this.Connection.BeginTransaction())
+            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName), transaction))
             using (var reader = cmd.ExecuteReader())
             {
                 var table = new TableMetaData

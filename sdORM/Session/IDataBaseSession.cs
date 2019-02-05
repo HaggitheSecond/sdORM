@@ -31,9 +31,9 @@ namespace sdORM.Session
         /// Queries the Database for all entities with the specified sql query.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>
-        /// <param name="parameterizedSql">The raw sql by which the table will be queried.</param>
+        /// <param name="sql">The raw sql by which the table will be queried.</param>
         /// <returns>The matching entities in the table.</returns>
-        IList<T> Query<T>(ParameterizedSql parameterizedSql) where T : new();
+        IList<T> Query<T>(ParameterizedSql sql) where T : new();
 
         /// <summary>
         /// Gets the entity with the matching primarykey-value or null if none exists.

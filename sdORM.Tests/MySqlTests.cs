@@ -35,15 +35,16 @@ namespace sdORM.Tests
         {
             using (var session = this.Factory.CreateSession())
             {
-                var temp2 = session.Query<Employee>(f => f.LastName == "Clark");
+                //var temp2 = session.Query<Employee>(f => f.LastName == "Clark");
 
-                //var temp = session.Save(new Employee
+                //var employee = new Employee
                 //{
                 //    Birthday = DateTime.MinValue,
                 //    FirstName = "John D.",
-                //    LastName = "Clark",
+                //    LastName = "Glantz",
                 //    Status = EmployeeStatus.Retired
-                //});
+                //};
+                //var temp = session.Save(employee);
             }
         }
 
@@ -138,7 +139,8 @@ namespace sdORM.Tests
             {
                 var result1 = await session.SaveAsync(new Employee
                 {
-                    FirstName = "does not matter"
+                    FirstName = "does not matter",
+                    
                 });
 
                 Assert.True(result1.ID != 0);

@@ -146,9 +146,9 @@ namespace sdORM.MySql
             return $"SHOW TABLES LIKE '{tableName}'";
         }
 
-        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql)
+        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction)
         {
-            var command = this.GenerateIDBCommand(connection, sql.Sql);
+            var command = this.GenerateIDBCommand(connection, sql.Sql, transaction);
 
             foreach (var currentParameter in sql.Parameters)
             {
@@ -163,11 +163,12 @@ namespace sdORM.MySql
             return command;
         }
 
-        public DbCommand GenerateIDBCommand(DbConnection connection, string sql)
+        public DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction)
         {
             var command = connection.CreateCommand();
 
             command.CommandText = sql;
+            command.Transaction = transaction;
 
             return command;
         }
