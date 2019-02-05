@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using MySql.Data.MySqlClient;
 using sdORM.Common.SqlSpecifics;
+using sdORM.Extensions;
 using sdORM.Mapping;
 using sdORM.Session;
 
