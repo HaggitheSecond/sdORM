@@ -23,5 +23,15 @@ namespace sdORM.Tests.Entities
 
         [DBProperty]
         public DateTime Birthday { get; set; }
+
+        [DBProperty]
+        public EmployeeStatus Status { get; set; }
+    }
+
+    public enum EmployeeStatus
+    {
+        Active,
+        Retired,
+        Fired
     }
 }

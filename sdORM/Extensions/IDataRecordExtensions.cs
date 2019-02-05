@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Mapping;
@@ -20,6 +21,11 @@ namespace sdORM.Extensions
 
                 if (value == DBNull.Value)
                     continue;
+
+                if (currentProperty.Property.PropertyType.IsEnum)
+                {
+                    value = TypeDescriptor.GetConverter(currentProperty.Property.PropertyType).ConvertFrom(value);
+                }
 
                 currentProperty.Property.SetValue(entity, value);
             }

@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common;
@@ -30,6 +31,23 @@ namespace sdORM.Tests
         }
 
         [Fact]
+        public void Test()
+        {
+            using (var session = this.Factory.CreateSession())
+            {
+                var temp2 = session.Query<Employee>(f => f.LastName == "Clark");
+
+                //var temp = session.Save(new Employee
+                //{
+                //    Birthday = DateTime.MinValue,
+                //    FirstName = "John D.",
+                //    LastName = "Clark",
+                //    Status = EmployeeStatus.Retired
+                //});
+            }
+        }
+
+        [Fact]
         public void ConnectionTest()
         {
             using (var session = this.Factory.CreateSession())
@@ -52,10 +70,9 @@ namespace sdORM.Tests
         {
             using (var session = this.Factory.CreateSession())
             {
-                var result = session.Query<Employee>(f => f.ID == 1);
+                var result = session.Query<Employee>(f => f.FirstName=="Jaina");
 
                 Assert.True(result != null);
-                Assert.True(result.Count == 1);
             }
         }
 
