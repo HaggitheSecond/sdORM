@@ -9,17 +9,17 @@ namespace sdORM
 {
     public abstract class DatabaseSessionFactory
     {
-        protected readonly DbConnection _connection;
+        protected readonly string ConnectionString;
         protected readonly EntityMappingProvider _mappingProvider;
         
         public bool IsInitialized { get; protected set; }
 
-        protected DatabaseSessionFactory(DbConnection connection, EntityMappingProvider mappingProvider)
+        protected DatabaseSessionFactory(string connectionString, EntityMappingProvider mappingProvider)
         {
-            Guard.NotNull(connection, nameof(connection));
+            Guard.NotNull(connectionString, nameof(connectionString));
             Guard.NotNull(mappingProvider, nameof(mappingProvider));
 
-            this._connection = connection;
+            this.ConnectionString = connectionString;
             this._mappingProvider = mappingProvider;
         }
 

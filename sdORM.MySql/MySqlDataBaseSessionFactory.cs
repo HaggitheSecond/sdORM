@@ -11,7 +11,7 @@ namespace sdORM.MySql
     public class MySqlDatabaseSessionFactory : DatabaseSessionFactory
     {
         public MySqlDatabaseSessionFactory(string connectionString, EntityMappingProvider mappingProvider)
-            : base(new MySqlConnection(connectionString), mappingProvider)
+            : base(connectionString, mappingProvider)
         {
 
         }
@@ -41,7 +41,7 @@ namespace sdORM.MySql
             if (this.IsInitialized == false)
                 throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
 
-            var session = new DatabaseSession(this._connection, this._mappingProvider, new MySqlSqlProvider());
+            var session = new DatabaseSession(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
             session.Connect();
             return session;
         }
@@ -51,7 +51,7 @@ namespace sdORM.MySql
             if (this.IsInitialized == false)
                 throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
 
-            var session = new DatabaseSessionAsync(this._connection, this._mappingProvider, new MySqlSqlProvider());
+            var session = new DatabaseSessionAsync(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
             await session.ConnectAsync();
             return session;
         }
