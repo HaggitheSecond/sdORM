@@ -35,7 +35,7 @@ namespace sdORM.MySql
             public ParameterizedSql ParseExpressionTree(Expression expression)
             {
                 this.Visit(expression);
-                
+
                 return new ParameterizedSql
                 {
                     Sql = this.ConvertPrefixToInfix(this._expressionParts),
@@ -96,9 +96,44 @@ namespace sdORM.MySql
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (this._ignoreNextMemberCount != 0)
+                {
                     this._ignoreNextMemberCount--;
+                }
                 else
-                    this._expressionParts.Add(node.Member.Name);
+                {
+                    if (this.IsOperand(this._expressionParts.Last()))
+                    {
+                        this._expressionParts.Add(node.Member.Name);
+                    }
+                    else
+                    {
+                        if (node.Member.DeclaringType == typeof(DateTime))
+                        {
+                            if (node.Member.Name == "Today")
+                            {
+                                var latest = $"DATE({this._expressionParts.Last()})";
+                                this._expressionParts.RemoveAt(this._expressionParts.Count - 1);
+                                this._expressionParts.Add(latest);
+                                this._expressionParts.Add("DATE(NOW())");
+                            }
+
+                            if (node.Member.Name == "Now")
+                            {
+                                this._expressionParts.Add("NOW()");
+                            }
+                        }
+                        else
+                        {
+                            var value = Expression.Lambda(node).Compile().DynamicInvoke();
+
+                            var parameterName = this.GetUnusedParameterName(this._expressionParts.Last());
+                            this._parameters.Add(new KeyValuePair<string, object>(parameterName, value));
+                            this._expressionParts.Add(parameterName);
+
+                            this._ignoreNextConstantCount = 1;
+                        }
+                    }
+                }
 
                 return base.VisitMember(node);
             }
@@ -117,6 +152,26 @@ namespace sdORM.MySql
                 }
 
                 return base.VisitConstant(node);
+            }
+
+            protected override Expression VisitNew(NewExpression node)
+            {
+                var value = Expression.Lambda(node).Compile().DynamicInvoke();
+
+                if (value == null || (value as IList)?.Count == 0)
+                {
+
+                }
+                else
+                {
+                    var parameterName = this.GetUnusedParameterName(this._expressionParts.Last());
+                    this._parameters.Add(new KeyValuePair<string, object>(parameterName, value));
+                    this._expressionParts.Add(parameterName);
+
+                    this._ignoreNextConstantCount = node.Arguments.Count;
+                }
+
+                return base.VisitNew(node);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -189,6 +244,11 @@ namespace sdORM.MySql
                 return base.VisitMethodCall(node);
             }
 
+            protected override Expression VisitListInit(ListInitExpression node)
+            {
+                return base.VisitListInit(node);
+            }
+
             private string GetUnusedParameterName(string preferedName)
             {
                 preferedName = "@" + preferedName;
@@ -210,6 +270,147 @@ namespace sdORM.MySql
                 }
 
                 return newName;
+            }
+
+
+            protected override Expression VisitBlock(BlockExpression node)
+            {
+                return base.VisitBlock(node);
+            }
+
+            protected override CatchBlock VisitCatchBlock(CatchBlock node)
+            {
+                return base.VisitCatchBlock(node);
+            }
+
+            protected override Expression VisitConditional(ConditionalExpression node)
+            {
+                return base.VisitConditional(node);
+            }
+
+            protected override Expression VisitDebugInfo(DebugInfoExpression node)
+            {
+                return base.VisitDebugInfo(node);
+            }
+
+            protected override Expression VisitDefault(DefaultExpression node)
+            {
+                return base.VisitDefault(node);
+            }
+
+            protected override Expression VisitDynamic(DynamicExpression node)
+            {
+                return base.VisitDynamic(node);
+            }
+
+            protected override ElementInit VisitElementInit(ElementInit node)
+            {
+                return base.VisitElementInit(node);
+            }
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                return base.VisitExtension(node);
+            }
+
+            protected override Expression VisitGoto(GotoExpression node)
+            {
+                return base.VisitGoto(node);
+            }
+
+            protected override Expression VisitIndex(IndexExpression node)
+            {
+                return base.VisitIndex(node);
+            }
+
+            protected override Expression VisitInvocation(InvocationExpression node)
+            {
+                return base.VisitInvocation(node);
+            }
+
+            protected override Expression VisitLabel(LabelExpression node)
+            {
+                return base.VisitLabel(node);
+            }
+
+            protected override LabelTarget VisitLabelTarget(LabelTarget node)
+            {
+                return base.VisitLabelTarget(node);
+            }
+
+            protected override Expression VisitLambda<T>(Expression<T> node)
+            {
+                return base.VisitLambda(node);
+            }
+
+            protected override Expression VisitLoop(LoopExpression node)
+            {
+                return base.VisitLoop(node);
+            }
+
+            protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+            {
+                return base.VisitMemberAssignment(node);
+            }
+
+            protected override MemberBinding VisitMemberBinding(MemberBinding node)
+            {
+                return base.VisitMemberBinding(node);
+            }
+
+            protected override Expression VisitMemberInit(MemberInitExpression node)
+            {
+                return base.VisitMemberInit(node);
+            }
+
+            protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
+            {
+                return base.VisitMemberListBinding(node);
+            }
+
+            protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
+            {
+                return base.VisitMemberMemberBinding(node);
+            }
+
+            protected override Expression VisitNewArray(NewArrayExpression node)
+            {
+                return base.VisitNewArray(node);
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                return base.VisitParameter(node);
+            }
+
+            protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)
+            {
+                return base.VisitRuntimeVariables(node);
+            }
+
+            protected override Expression VisitSwitch(SwitchExpression node)
+            {
+                return base.VisitSwitch(node);
+            }
+
+            protected override SwitchCase VisitSwitchCase(SwitchCase node)
+            {
+                return base.VisitSwitchCase(node);
+            }
+
+            protected override Expression VisitTry(TryExpression node)
+            {
+                return base.VisitTry(node);
+            }
+
+            protected override Expression VisitTypeBinary(TypeBinaryExpression node)
+            {
+                return base.VisitTypeBinary(node);
+            }
+
+            protected override Expression VisitUnary(UnaryExpression node)
+            {
+                return base.VisitUnary(node);
             }
         }
     }

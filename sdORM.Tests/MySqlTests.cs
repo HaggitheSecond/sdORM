@@ -36,7 +36,7 @@ namespace sdORM.Tests
                 return factory;
             }
         }
-        
+
         [Fact]
         public void ConnectionTest()
         {
@@ -62,19 +62,59 @@ namespace sdORM.Tests
 
             using (var session = this.Factory.CreateSession())
             {
+                #region DateTime
+
                 QueryTestInternal(session,
-                    f => new List<string>
-                    {
-                        "Jaina",
-                        "Wat",
-                        "DAS FUNKTUNIERT"
-                    }.Contains(f.FirstName),
+                    f => f.Birthday < new DateTime(2019, 02, 07, 23, 28, 00, 00),
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < @Birthday",
+                    1);
+
+                var dateTime = new DateTime(2019, 02, 07, 23, 28, 00, 00);
+                QueryTestInternal(session,
+                    f => f.Birthday < dateTime,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < @Birthday",
+                    1);
+
+                QueryTestInternal(session,
+                    f => f.Birthday < DateTime.Now,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < NOW()",
+                    0);
+
+                QueryTestInternal(session,
+                    f => f.Birthday == DateTime.Today,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE DATE(Birthday) = DATE(NOW())",
+                    0);
+
+                #endregion
+
+                #region Lists
+
+                var namesList = new List<string>
+                {
+                    "Jaina",
+                    "Arthas",
+                    "Garrosh"
+                };
+                QueryTestInternal(session,
+                    f => namesList.Contains(f.FirstName),
                     "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName IN (@FirstName, @FirstName1, @FirstName2)",
                     3);
 
                 QueryTestInternal(session,
+                    f => new List<string>
+                    {
+                        "Jaina",
+                        "Arthas",
+                        "Garrosh"
+                    }.Contains(f.FirstName),
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName IN (@FirstName, @FirstName1, @FirstName2)",
+                    3);
+
+                #endregion
+
+                QueryTestInternal(session,
                     f => f.FirstName == "Jaina",
-                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName = @FirstName", 
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName = @FirstName",
                     1);
 
                 QueryTestInternal(session,
@@ -84,6 +124,12 @@ namespace sdORM.Tests
 
                 QueryTestInternal(session,
                     f => f.ID == 2,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
+                    1);
+
+                var id = 3;
+                QueryTestInternal(session,
+                    f => f.ID == id,
                     "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
                     1);
             }
