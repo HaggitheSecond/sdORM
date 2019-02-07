@@ -38,7 +38,7 @@ namespace sdORM.Session
         {
             Guard.NotNull(predicate, nameof(predicate));
 
-            return this.Query<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecificProvider.ExpressionToSqlProvider));
+            return this.Query<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
         }
 
         public virtual IList<T> Query<T>(ParameterizedSql sql) where T : new()

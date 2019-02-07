@@ -90,7 +90,7 @@ namespace sdORM.Tests
 
             void QueryTestInternal(IDatabaseSession session, Expression<Func<Employee, bool>> expression, string expectedResultSql, int expectedResultParamaterCount)
             {
-                var query = sqlProvider.GetSqlForPredicate(expression, this.MappingProvider.GetMapping<Employee>(), sqlProvider.ExpressionToSqlProvider);
+                var query = sqlProvider.GetSqlForPredicate(expression, this.MappingProvider.GetMapping<Employee>());
                 var result1 = session.Query<Employee>(query);
                 var replaced = query.GetWithReplacedParameters();
 

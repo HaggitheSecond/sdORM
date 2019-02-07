@@ -28,7 +28,7 @@ namespace sdORM.Session
 
         public virtual async Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new()
         {
-            return await this.QueryAsync<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecificProvider.ExpressionToSqlProvider));
+            return await this.QueryAsync<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
         }
 
         public virtual async Task<IList<T>> QueryAsync<T>() where T : new()

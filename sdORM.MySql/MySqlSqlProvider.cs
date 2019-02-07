@@ -17,9 +17,9 @@ namespace sdORM.MySql
     {
         public IExpressionToSqlProvider ExpressionToSqlProvider => new ExpressionToMySqlProvider();
 
-        public ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping, IExpressionToSqlProvider provider) where T : new()
+        public ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping) where T : new()
         {
-            var wherePart = provider.BuildSqlQuery(predicate);
+            var wherePart = this.ExpressionToSqlProvider.BuildSqlQuery(predicate);
 
             var builder = this.GetSelectStatementForMapping(mapping);
 

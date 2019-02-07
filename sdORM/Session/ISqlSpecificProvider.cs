@@ -13,7 +13,7 @@ namespace sdORM.Session
     {
         IExpressionToSqlProvider ExpressionToSqlProvider { get; }
 
-        ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping,IExpressionToSqlProvider provider) where T : new();
+        ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping) where T : new();
 
         ParameterizedSql GetSqlForGetById<T>(object id, EntityMapping<T> mapping);
 
