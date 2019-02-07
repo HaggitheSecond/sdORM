@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Extensions;
 using sdORM.Mapping.AttributeMapping;
 using sdORM.MySql;
+using sdORM.Session;
 using sdORM.Tests.Entities;
 using Xunit;
 
@@ -11,45 +16,27 @@ namespace sdORM.Tests
 {
     public class MySqlTests
     {
+        public AttributeEntityMappingProvider MappingProvider;
+
         public DatabaseSessionFactory Factory
         {
             get
             {
-                var attributeEntityMappingProvider = new AttributeEntityMappingProvider();
+                this.MappingProvider = new AttributeEntityMappingProvider();
 
-                attributeEntityMappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
+                this.MappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
 
                 //var connectionString = "Server=b5-312-pc02; Database=mydb; UID=3r1k-uk; password=user2;";
                 var connectionString = "Server=localhost; Database=develop; UID=root; password=;";
-                
-                var factory = new MySqlDatabaseSessionFactory(connectionString, attributeEntityMappingProvider);
+
+                var factory = new MySqlDatabaseSessionFactory(connectionString, this.MappingProvider);
 
                 factory.Initalize();
 
                 return factory;
             }
         }
-
-        [Fact]
-        public void Test()
-        {
-            using (var session = this.Factory.CreateSession())
-            {
-
-                var employee = new Employee
-                {
-                    Birthday = DateTime.MinValue,
-                    FirstName = "dunno",
-                    LastName = "House",
-                    Status = EmployeeStatus.Retired,
-                    Salary = 42
-                };
-                var temp = session.Save(employee);
-
-                var temp2 = session.Query<Employee>();
-            }
-        }
-
+        
         [Fact]
         public void ConnectionTest()
         {
@@ -71,11 +58,44 @@ namespace sdORM.Tests
         [Fact]
         public void QueryTest()
         {
+            var sqlProvider = new MySqlSqlProvider();
+
             using (var session = this.Factory.CreateSession())
             {
-                var result = session.Query<Employee>(f => f.FirstName=="Jaina");
+                QueryTestInternal(session,
+                    f => new List<string>
+                    {
+                        "Jaina",
+                        "Wat",
+                        "DAS FUNKTUNIERT"
+                    }.Contains(f.FirstName),
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName IN (@FirstName, @FirstName1, @FirstName2)",
+                    3);
 
-                Assert.True(result != null);
+                QueryTestInternal(session,
+                    f => f.FirstName == "Jaina",
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE FirstName = @FirstName", 
+                    1);
+
+                QueryTestInternal(session,
+                    f => f.FirstName == "Temp" && f.ID == 2 || f.LastName == "Proudmoore" && f.Salary != 0,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ((FirstName = @FirstName) AND (ID = @ID)) OR ((LastName = @LastName) AND (Salary <> @Salary))",
+                    4);
+
+                QueryTestInternal(session,
+                    f => f.ID == 2,
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
+                    1);
+            }
+
+            void QueryTestInternal(IDatabaseSession session, Expression<Func<Employee, bool>> expression, string expectedResultSql, int expectedResultParamaterCount)
+            {
+                var query = sqlProvider.GetSqlForPredicate(expression, this.MappingProvider.GetMapping<Employee>(), sqlProvider.ExpressionToSqlProvider);
+                var result1 = session.Query<Employee>(query);
+                var replaced = query.GetWithReplacedParameters();
+
+                Assert.True(query.Sql == expectedResultSql);
+                Assert.True(query.Parameters.Count == expectedResultParamaterCount);
             }
         }
 
@@ -142,7 +162,7 @@ namespace sdORM.Tests
                 var result1 = await session.SaveAsync(new Employee
                 {
                     FirstName = "does not matter",
-                    
+
                 });
 
                 Assert.True(result1.ID != 0);

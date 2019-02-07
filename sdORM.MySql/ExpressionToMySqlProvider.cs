@@ -13,241 +13,204 @@ namespace sdORM.MySql
     {
         public ParameterizedSql BuildSqlQuery<T>(Expression<Func<T, bool>> expression)
         {
-            var sqlScriptParts = new List<SqlScriptPart>();
-
-            this.ProcessExpression(expression.Body, sqlScriptParts);
-
-            var result = new ParameterizedSql
-            {
-                Sql = this.ToRawSql(sqlScriptParts),
-                Parameters = new List<SqlParameter>(sqlScriptParts
-                    .OfType<SqlScriptParameter>()
-                    .Select(f => new SqlParameter
-                    {
-                        Value = f.ParameterValue,
-                        ParameterName = f.ParameterName
-                    }))
-            };
-
-            return result;
+            return new SpookyVisitor().ParseExpressionTree(expression);
         }
 
-        private string ToRawSql(IList<SqlScriptPart> scriptParts)
+        private class SpookyVisitor : ExpressionVisitor
         {
-            var result = new List<string>();
+            private readonly IList<string> _expressionParts;
+            private readonly IList<KeyValuePair<string, object>> _parameters;
 
-            foreach (var currentScriptPart in scriptParts)
+            // This is not a very nice way to do this... TODO: Rework this (again)
+            private int _ignoreNextMemberCount;
+            private int _ignoreNextConstantCount;
+
+            public SpookyVisitor()
             {
-                if (currentScriptPart is SqlScriptColumnName columnName)
-                    result.Add(columnName.ColumnName);
-
-                if (currentScriptPart is SqlScriptOperator @operator)
-                    result.Add(@operator.Value);
-
-                if (currentScriptPart is SqlScriptParameter parameter)
-                    result.Add(parameter.ParameterName);
+                this._expressionParts = new List<string>();
+                this._parameters = new List<KeyValuePair<string, object>>();
 
             }
 
-            return string.Join(" ", result);
-        }
-
-        private void ProcessExpression(Expression expression, IList<SqlScriptPart> sqlScriptParts)
-        {
-            if (expression is BinaryExpression binaryExpression)
+            public ParameterizedSql ParseExpressionTree(Expression expression)
             {
-                this.ProcessExpression(binaryExpression.Left, sqlScriptParts);
-                sqlScriptParts.Add(new SqlScriptOperator
+                this.Visit(expression);
+                
+                return new ParameterizedSql
                 {
-                    Value = binaryExpression.NodeType.ToSqlOperator()
-                });
-                this.ProcessExpression(binaryExpression.Right, sqlScriptParts);
+                    Sql = this.ConvertPrefixToInfix(this._expressionParts),
+                    Parameters = this._parameters.Select(f => new SqlParameter
+                    {
+                        ParameterName = f.Key,
+                        Value = f.Value
+                    }).ToList()
+                };
             }
-            else if (expression is InvocationExpression invocationExpression)
+
+            private string ConvertPrefixToInfix(IList<string> parts)
             {
-                this.ProcessExpression(invocationExpression.Expression, sqlScriptParts);
-            }
-            else if (expression is LambdaExpression lambdaExpression)
-            {
-                if (lambdaExpression.Body is BinaryExpression binaryExpressionBody && (binaryExpressionBody.NodeType == ExpressionType.AndAlso ||
-                                                                                      binaryExpressionBody.NodeType == ExpressionType.OrElse))
+                var stack = new Stack<string>();
+
+                foreach (var currentPart in parts.Reverse().ToList())
                 {
-                    sqlScriptParts.Add(new SqlScriptOperator
-                    {
-                        Value = "("
-                    });
+                    stack.Push(this.IsOperand(currentPart) ? $"({stack.Pop()} {currentPart} {stack.Pop()})" : currentPart);
+                }
 
-                    this.ProcessExpression(lambdaExpression.Body, sqlScriptParts);
+                var infixResult = stack.Pop();
 
-                    sqlScriptParts.Add(new SqlScriptOperator
-                    {
-                        Value = ")"
-                    });
+                infixResult = infixResult.Remove(0, 1);
+                infixResult = infixResult.Remove(infixResult.Length - 1, 1);
+
+                return infixResult;
+            }
+
+            private bool IsOperand(string value)
+            {
+                switch (value)
+                {
+                    case "=":
+                    case ">":
+                    case "<":
+                    case ">=":
+                    case "<=":
+                    case "<>":
+
+                    case "OR":
+                    case "AND":
+
+                    case "IS":
+                    case "LIKE":
+                    case "IN":
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                this._expressionParts.Add(node.NodeType.ToSqlOperator());
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (this._ignoreNextMemberCount != 0)
+                    this._ignoreNextMemberCount--;
+                else
+                    this._expressionParts.Add(node.Member.Name);
+
+                return base.VisitMember(node);
+            }
+
+            protected override Expression VisitConstant(ConstantExpression node)
+            {
+                if (this._ignoreNextConstantCount != 0)
+                {
+                    this._ignoreNextConstantCount--;
                 }
                 else
-                    this.ProcessExpression(lambdaExpression.Body, sqlScriptParts);
-            }
-            else if (expression is MemberExpression memberExpression)
-            {
-                sqlScriptParts.Add(new SqlScriptColumnName
                 {
-                    ColumnName = $"{memberExpression.Member.Name}"
-                });
+                    var parameterName = this.GetUnusedParameterName(this._expressionParts.Last());
+                    this._parameters.Add(new KeyValuePair<string, object>(parameterName, node.Value.ToString()));
+                    this._expressionParts.Add(parameterName);
+                }
+
+                return base.VisitConstant(node);
             }
-            else if (expression is ConstantExpression constantExpression)
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (sqlScriptParts.LastOrDefault(f => f is SqlScriptColumnName) is SqlScriptColumnName sqlPart)
-                    sqlScriptParts.Add(new SqlScriptParameter
+                if (node.Method.Name == "IsNullOrWhiteSpace")
+                {
+                    var temp = (MemberExpression)node.Arguments.First();
+
+                    this._expressionParts.Add("OR");
+                    this._expressionParts.Add("IS");
+                    this._expressionParts.Add(temp.Member.Name);
+                    this._expressionParts.Add("NULL");
+                    this._expressionParts.Add("=");
+                    this._expressionParts.Add(temp.Member.Name);
+                    this._expressionParts.Add("' '");
+
+                    this._ignoreNextMemberCount = 1;
+                }
+                else if (node.Method.Name == "Contains" && node.Method.DeclaringType == typeof(string))
+                {
+                    var memberExpression = (MemberExpression)node.Object;
+                    var valueExpression = (ConstantExpression)node.Arguments.First();
+
+                    this._expressionParts.Add("LIKE");
+                    this._expressionParts.Add(memberExpression.Member.Name);
+
+                    var parameterName = this.GetUnusedParameterName(memberExpression.Member.Name);
+                    this._parameters.Add(new KeyValuePair<string, object>(parameterName, valueExpression.Value));
+
+                    this._expressionParts.Add($"\"%{parameterName}%\"");
+
+                }
+                else if (node.Method.Name == "Contains" && typeof(IEnumerable).IsAssignableFrom(node.Method.DeclaringType))
+                {
+                    var memberExpression = (MemberExpression)node.Arguments.First();
+
+                    IList values;
+                    if (node.Object.NodeType == ExpressionType.ListInit)
                     {
-                        ParameterValue = constantExpression.Value,
-                        ParameterName = this.GetUnusedParameterName($"@{sqlPart.ColumnName}", sqlScriptParts.OfType<SqlScriptParameter>().ToList())
-                    });
-            }
-            else if (expression is MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Object == null)
-                    throw new ArgumentException("MethodCallExpression.Object is null", nameof(methodCallExpression.Object));
-
-                var type = methodCallExpression.Object.Type;
-
-                if (type == typeof(string))
-                {
-                    this.HandleStringOperations(methodCallExpression, sqlScriptParts);
-                }
-                else if (typeof(IEnumerable).IsAssignableFrom(type))
-                {
-                    this.HandleListOperations(methodCallExpression, sqlScriptParts);
-                }
-            }
-            else
-            {
-                throw new Exception($"Expression of type {expression.Type} is not allowed in this context");
-            }
-        }
-
-        private void HandleListOperations(MethodCallExpression expression, IList<SqlScriptPart> sqlScriptParts)
-        {
-            if (expression.Method.Name == "Contains")
-            {
-                var columnName = ((MemberExpression)expression.Arguments[0]).Member.Name;
-
-                sqlScriptParts.Add(new SqlScriptColumnName
-                {
-                    ColumnName = columnName
-                });
-
-                sqlScriptParts.Add(new SqlScriptOperator
-                {
-                    Value = "IN"
-                });
-
-                var values = (IList)Expression.Lambda((MemberExpression)expression.Object).Compile().DynamicInvoke();
-
-                sqlScriptParts.Add(new SqlScriptOperator
-                {
-                    Value = "("
-                });
-
-                foreach (var currentValue in values)
-                {
-                    sqlScriptParts.Add(new SqlScriptParameter
+                        values = (IList)Expression.Lambda((ListInitExpression)node.Object).Compile().DynamicInvoke();
+                        this._ignoreNextConstantCount = values.Count;
+                    }
+                    else
                     {
-                        ParameterValue = currentValue,
-                        ParameterName = this.GetUnusedParameterName($"@{columnName}", sqlScriptParts.OfType<SqlScriptParameter>().ToList())
-                    });
+                        values = (IList)Expression.Lambda((MemberExpression)node.Object).Compile().DynamicInvoke();
+                        this._ignoreNextConstantCount = 1;
+                    }
 
-                    if (values.IndexOf(currentValue) != values.Count - 1)
-                        sqlScriptParts.Add(new SqlScriptOperator
-                        {
-                            Value = ","
-                        });
+                    this._expressionParts.Add("IN");
+                    this._expressionParts.Add(memberExpression.Member.Name);
+
+                    var parameters = new List<string>();
+                    foreach (var currentValue in values)
+                    {
+                        var parameterName = this.GetUnusedParameterName(memberExpression.Member.Name);
+                        this._parameters.Add(new KeyValuePair<string, object>(parameterName, currentValue));
+
+                        parameters.Add(parameterName);
+                    }
+
+                    this._expressionParts.Add($"({string.Join(", ", parameters)})");
+
+                    this._ignoreNextMemberCount = 2;
+                }
+                else
+                {
+                    // wat to here?
                 }
 
-                sqlScriptParts.Add(new SqlScriptOperator
-                {
-                    Value = ")"
-                });
+                return base.VisitMethodCall(node);
             }
-        }
 
-        private void HandleStringOperations(MethodCallExpression expression, IList<SqlScriptPart> sqlScriptParts)
-        {
-            if (expression.Method.Name == "Contains")
+            private string GetUnusedParameterName(string preferedName)
             {
-                var columnName = ((MemberExpression)expression.Object).Member.Name;
+                preferedName = "@" + preferedName;
 
-                sqlScriptParts.Add(new SqlScriptColumnName
+                if (this._parameters.Select(f => f.Key).Contains(preferedName) == false)
+                    return preferedName;
+
+                string newName;
+                var i = 1;
+
+                while (true)
                 {
-                    ColumnName = columnName
-                });
+                    newName = preferedName + i;
 
-                sqlScriptParts.Add(new SqlScriptOperator
-                {
-                    Value = "LIKE"
-                });
-
-                string parameterValue;
-
-                switch (expression.Arguments.First())
-                {
-                    case ConstantExpression constantArgumentExpression:
-                        parameterValue = constantArgumentExpression.Value.ToString();
+                    if (this._parameters.Select(f => f.Key).Contains(newName) == false)
                         break;
-                    case MethodCallExpression methodCallExpression:
-                        parameterValue = Expression.Lambda(methodCallExpression).Compile().DynamicInvoke().ToString();
-                        break;
-                    default:
-                        throw new ArgumentException();
+
+                    i++;
                 }
 
-                sqlScriptParts.Add(new SqlScriptParameter
-                {
-                    ParameterName = this.GetUnusedParameterName($"@{columnName}", sqlScriptParts.OfType<SqlScriptParameter>().ToList()),
-                    ParameterValue = $"%{parameterValue}%"
-                });
+                return newName;
             }
-        }
-
-        private string GetUnusedParameterName(string preferedName, IList<SqlScriptParameter> existingParameters)
-        {
-            if (existingParameters.Select(f => f.ParameterName).Contains(preferedName) == false)
-                return preferedName;
-
-            var newName = string.Empty;
-            var i = 1;
-
-            while (true)
-            {
-                newName = preferedName + i;
-
-                if (existingParameters.Select(f => f.ParameterName).Contains(newName) == false)
-                    break;
-
-                i++;
-            }
-
-            return newName;
-        }
-
-        private class SqlScriptColumnName : SqlScriptPart
-        {
-            public string ColumnName { get; set; }
-        }
-
-        private class SqlScriptParameter : SqlScriptPart
-        {
-            public object ParameterValue { get; set; }
-
-            public string ParameterName { get; set; }
-        }
-
-        private class SqlScriptOperator : SqlScriptPart
-        {
-            public string Value { get; set; }
-        }
-
-        private abstract class SqlScriptPart
-        {
         }
     }
 }
