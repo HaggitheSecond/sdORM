@@ -15,8 +15,8 @@ namespace sdORM.Session
 {
     public class DatabaseSessionAsync : DatabaseSessionBase, IDatabaseSessionAsync
     {
-        public DatabaseSessionAsync(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
-            : base(connection, entityMappingProvider, sqlSpecifcProvider)
+        public DatabaseSessionAsync(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecificProvider sqlSpecificProvider)
+            : base(connection, entityMappingProvider, sqlSpecificProvider)
         {
 
         }
@@ -28,14 +28,14 @@ namespace sdORM.Session
 
         public virtual async Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new()
         {
-            return await this.QueryAsync<T>(this.SqlSpecifcProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecifcProvider.ExpressionToSqlProvider));
+            return await this.QueryAsync<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>(), this.SqlSpecificProvider.ExpressionToSqlProvider));
         }
 
         public virtual async Task<IList<T>> QueryAsync<T>() where T : new()
         {
             return await this.QueryAsync<T>(new ParameterizedSql
             {
-                Sql = this.SqlSpecifcProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
+                Sql = this.SqlSpecificProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
                 Parameters = new List<SqlParameter>()
             });
         }
@@ -44,7 +44,7 @@ namespace sdORM.Session
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = await command.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
@@ -64,9 +64,9 @@ namespace sdORM.Session
         public virtual async Task<T> GetByIDAsync<T>(object id) where T : new()
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.SqlSpecifcProvider.GetSqlForGetById(id, mapping);
+            var sql = this.SqlSpecificProvider.GetSqlForGetById(id, mapping);
 
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql))
             using (var reader = await command.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
@@ -92,15 +92,15 @@ namespace sdORM.Session
         public virtual async Task<T> SaveAsync<T>(T entity)
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.SqlSpecifcProvider.GetSqlForSave(entity, mapping);
+            var sql = this.SqlSpecificProvider.GetSqlForSave(entity, mapping);
 
             using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 await command.ExecuteNonQueryAsync();
 
                 transaction.Commit();
-                this.SqlSpecifcProvider.SetIdAfterSave(entity, command, mapping);
+                this.SqlSpecificProvider.SetIdAfterSave(entity, command, mapping);
 
                 return entity;
             }
@@ -109,10 +109,10 @@ namespace sdORM.Session
         public virtual async Task<T> UpdateAsync<T>(T entity)
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.SqlSpecifcProvider.GetSqlForUpdate(entity, mapping);
+            var sql = this.SqlSpecificProvider.GetSqlForUpdate(entity, mapping);
 
             using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 await command.ExecuteNonQueryAsync();
                 transaction.Commit();
@@ -123,10 +123,10 @@ namespace sdORM.Session
         public virtual async Task Delete<T>(object id)
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
-            var sql = this.SqlSpecifcProvider.GetSqlForDelete(id, mapping);
+            var sql = this.SqlSpecificProvider.GetSqlForDelete(id, mapping);
 
             using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
             {
                 await command.ExecuteNonQueryAsync();
                 transaction.Commit();
@@ -136,14 +136,14 @@ namespace sdORM.Session
         public virtual async Task<TableMetaData> GetTableMetaDataAsync(string tableName)
         {
             // See sync version for comment
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForCheckIfTableExtists(tableName)))
+            using (var cmd = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, this.SqlSpecificProvider.GetSqlForCheckIfTableExtists(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var cmd = this.SqlSpecifcProvider.GenerateIDBCommand(this.Connection, this.SqlSpecifcProvider.GetSqlForTableMetaData(tableName)))
+            using (var cmd = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, this.SqlSpecificProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 var table = new TableMetaData

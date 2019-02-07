@@ -13,7 +13,7 @@ using sdORM.Session;
 
 namespace sdORM.MySql
 {
-    public class MySqlSqlProvider : ISqlSpecifcProvider
+    public class MySqlSqlProvider : ISqlSpecificProvider
     {
         public IExpressionToSqlProvider ExpressionToSqlProvider => new ExpressionToMySqlProvider();
 

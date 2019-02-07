@@ -8,17 +8,17 @@ namespace sdORM.Session
     public abstract class DatabaseSessionBase
     {
         protected DbConnection Connection { get; }
-        protected ISqlSpecifcProvider SqlSpecifcProvider { get; }
+        protected ISqlSpecificProvider SqlSpecificProvider { get; }
         protected EntityMappingProvider EntityMappingProvider { get; }
 
-        protected DatabaseSessionBase(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecifcProvider sqlSpecifcProvider)
+        protected DatabaseSessionBase(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecificProvider sqlSpecificProvider)
         {
             Guard.NotNull(connection, nameof(connection));
             Guard.NotNull(entityMappingProvider, nameof(entityMappingProvider));
-            Guard.NotNull(sqlSpecifcProvider, nameof(sqlSpecifcProvider));
+            Guard.NotNull(sqlSpecificProvider, nameof(sqlSpecificProvider));
 
             this.Connection = connection;
-            this.SqlSpecifcProvider = sqlSpecifcProvider;
+            this.SqlSpecificProvider = sqlSpecificProvider;
             this.EntityMappingProvider = entityMappingProvider;
         }
 

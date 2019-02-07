@@ -9,7 +9,7 @@ using sdORM.Mapping;
 
 namespace sdORM.Session
 {
-    public interface ISqlSpecifcProvider
+    public interface ISqlSpecificProvider
     {
         IExpressionToSqlProvider ExpressionToSqlProvider { get; }
 
