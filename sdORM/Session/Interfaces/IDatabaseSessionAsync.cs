@@ -4,21 +4,16 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
-    public interface IDatabaseSessionAsync : IDisposable
+    public interface IDatabaseSessionAsync : IDisposable, IDatabaseSessionWithTransaction
     {
         /// <summary>
         /// The async version of the Connect() method in IDatabaseSession.
         /// <seealso cref="IDatabaseSession"/>
         /// </summary>
         Task ConnectAsync();
-
-        /// <summary>
-        /// Creates an transaction which will be applied to all non-reading operations and will be commited when the session is disposed.
-        /// </summary>
-        void AddTransaction();
-
+        
         /// <summary>
         /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>

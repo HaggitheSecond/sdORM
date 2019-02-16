@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping;
+using sdORM.Session.Interfaces;
 
-namespace sdORM.Session
+namespace sdORM.Session.Implementations
 {
     public class RawDatabaseSessionAsync : DatabaseSessionBase, IRawDatabaseSessionAsync
     {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using sdORM.Mapping.AttributeMapping.Attributes.Entities;
 using sdORM.Mapping.Exceptions;
 using sdORM.Session;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.Mapping
 {

@@ -1,11 +1,10 @@
-﻿using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Threading.Tasks;
-using sdORM.Common;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Helper;
 using sdORM.Mapping;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.Session
 {

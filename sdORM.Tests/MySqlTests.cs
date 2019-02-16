@@ -4,12 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using sdORM.Common;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping.AttributeMapping;
 using sdORM.MySql;
-using sdORM.Session;
+using sdORM.Session.Interfaces;
 using sdORM.Tests.Entities;
 using Xunit;
 

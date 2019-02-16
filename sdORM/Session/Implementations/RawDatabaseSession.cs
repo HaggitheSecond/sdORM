@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
-using System.Dynamic;
 using System.Linq;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping;
+using sdORM.Session.Interfaces;
 
-namespace sdORM.Session
+namespace sdORM.Session.Implementations
 {
+    // ITS FUCKING RAW
     public class RawDatabaseSession : DatabaseSessionBase, IRawDatabaseSession
     {
         public RawDatabaseSession(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecificProvider sqlSpecificProvider)

@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using sdORM.Helper;
 using sdORM.Mapping;
-using sdORM.Session;
 using sdORM.Session.Exceptions;
+using sdORM.Session.Interfaces;
 
 namespace sdORM
 {

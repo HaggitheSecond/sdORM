@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using sdORM.Common.SqlSpecifics;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
     public interface IExpressionToSqlProvider
     {

@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using sdORM.Common.SqlSpecifics;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
-    public interface IDatabaseSession : IDisposable
+
+    public interface IDatabaseSession : IDisposable, IDatabaseSessionWithTransaction
     {
         /// <summary>
         /// Creates the connection. This should never be used if you're using the DatabaseSessionFactory.
         /// </summary>
         void Connect();
-
-        /// <summary>
-        /// Creates an transaction which will be applied to all non-reading operations and will be commited when the session is disposed.
-        /// </summary>
-        void AddTransaction();
 
         /// <summary>
         /// Queries the Database for ALL entities in the table.

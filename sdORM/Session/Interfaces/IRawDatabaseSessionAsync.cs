@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
-    public interface IRawDatabaseSessionAsync : IDisposable
+    public interface IRawDatabaseSessionAsync : IDisposable, IDatabaseSessionWithTransaction
     {
         Task ConnectAsync();
 

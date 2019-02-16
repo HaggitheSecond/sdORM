@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using sdORM.Common.SqlSpecifics;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
-    public interface IRawDatabaseSession : IDisposable
+    public interface IRawDatabaseSession : IDisposable, IDatabaseSessionWithTransaction
     {
         void Connect();
 

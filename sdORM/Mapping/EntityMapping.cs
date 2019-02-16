@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Session;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.Mapping
 {

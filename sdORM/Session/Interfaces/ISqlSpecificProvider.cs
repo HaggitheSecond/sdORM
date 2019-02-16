@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq.Expressions;
 using System.Text;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Mapping;
 
-namespace sdORM.Session
+namespace sdORM.Session.Interfaces
 {
     public interface ISqlSpecificProvider
     {

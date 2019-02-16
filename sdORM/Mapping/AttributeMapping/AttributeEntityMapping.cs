@@ -8,6 +8,7 @@ using sdORM.Mapping.AttributeMapping.Attributes.Entities;
 using sdORM.Mapping.AttributeMapping.Attributes.Properties;
 using sdORM.Mapping.Exceptions;
 using sdORM.Session;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.Mapping.AttributeMapping
 {

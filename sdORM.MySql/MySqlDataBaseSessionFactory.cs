@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-using sdORM.Common;
+﻿using MySql.Data.MySqlClient;
 using sdORM.Mapping;
-using sdORM.Session;
-using sdORM.Session.Exceptions;
+using sdORM.Session.Implementations;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.MySql
 {

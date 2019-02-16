@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
-using sdORM.Session;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.MySql
 {

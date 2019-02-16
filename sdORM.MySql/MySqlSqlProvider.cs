@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -9,7 +8,7 @@ using MySql.Data.MySqlClient;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping;
-using sdORM.Session;
+using sdORM.Session.Interfaces;
 
 namespace sdORM.MySql
 {
