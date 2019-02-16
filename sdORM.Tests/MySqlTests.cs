@@ -150,6 +150,25 @@ namespace sdORM.Tests
                     f => f.ID == id,
                     "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
                     1);
+
+                var ids = new List<int>
+                {
+                    1,
+                    2,
+                    3
+                };
+                foreach (var currentId in ids)
+                {
+                    QueryTestInternal(session, 
+                        f => f.ID == currentId,
+                        "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
+                        1);
+                }
+
+                QueryTestInternal(session,
+                    f => f.ID == this.GetId(),
+                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE ID = @ID",
+                    1);
             }
 
             void QueryTestInternal(IRawDatabaseSession session, Expression<Func<Employee, bool>> expression, string expectedResultSql, int expectedResultParamaterCount)
@@ -157,10 +176,15 @@ namespace sdORM.Tests
                 var query = sqlProvider.GetSqlForPredicate(expression, this.MappingProvider.GetMapping<Employee>());
                 var result1 = session.ExecuteReader<Employee>(query);
                 var replaced = query.GetWithReplacedParameters();
-
+                
                 Assert.True(query.Sql == expectedResultSql);
                 Assert.True(query.Parameters.Count == expectedResultParamaterCount);
             }
+        }
+
+        private int GetId()
+        {
+            return 1;
         }
 
         [Fact]
