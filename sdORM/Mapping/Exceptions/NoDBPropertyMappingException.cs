@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -10,6 +11,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"'{property.Name}' in type '{type.FullName}' is not decleared as a DBPropertyAttribute or similar. Try adding [DBPropertyAttribute] or [DBIgnoreAttribute].")
         {
 
+        }
+
+        public NoDBPropertyMappingException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

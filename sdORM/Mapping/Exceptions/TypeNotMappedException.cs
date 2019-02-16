@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -9,6 +10,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"The type '{type.Name}' has not been mapped in the EntityMappingProvider.")
         {
             
+        }
+
+        public TypeNotMappedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

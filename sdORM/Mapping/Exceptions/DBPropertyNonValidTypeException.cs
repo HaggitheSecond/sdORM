@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -11,6 +12,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"Type '{property.PropertyType.Name}' of '{property.Name}' in DBEntity '{type.Name}' is not a valid type.")
         {
 
+        }
+
+        public DBPropertyNonValidTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

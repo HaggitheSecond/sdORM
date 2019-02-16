@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -10,6 +11,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"Type '{type.Name}' is not a valid type for a DBEntity.")
         {
 
+        }
+
+        public DBEntityNonValidTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

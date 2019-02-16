@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using sdORM.Exceptions;
 
 namespace sdORM.Mapping.Exceptions
 {
     [Serializable]
-    public class DBMappingException : Exception
+    public class DBMappingException : sdOrmException
     {
         public DBMappingException()
         {

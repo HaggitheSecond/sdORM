@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -10,6 +11,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"'{property.PropertyType}' for type {type.Name} is not supported as a primary key.")
         {
 
+        }
+
+        public DBPrimaryKeyNonSupportedTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

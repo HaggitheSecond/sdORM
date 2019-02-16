@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace sdORM.Mapping.Exceptions
 {
@@ -9,6 +10,10 @@ namespace sdORM.Mapping.Exceptions
             : base($"No matching table for type '{type.Name}' and tableName '{tableName}' found.")
         {
             
+        }
+
+        public NoTableForDBEntityException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }
