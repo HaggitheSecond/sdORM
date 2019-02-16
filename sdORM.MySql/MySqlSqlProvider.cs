@@ -146,35 +146,6 @@ namespace sdORM.MySql
             return $"SHOW TABLES LIKE '{tableName}'";
         }
 
-        public DbCommand GenerateIDBCommand(DbConnection connection, ParameterizedSql sql, DbTransaction transaction = null)
-        {
-            var command = this.GenerateIDBCommand(connection, sql.Sql, transaction);
-
-            foreach (var currentParameter in sql.Parameters)
-            {
-                var parameter = command.CreateParameter();
-
-                parameter.ParameterName = currentParameter.ParameterName;
-                parameter.Value = currentParameter.Value;
-
-                command.Parameters.Add(parameter);
-            }
-
-            return command;
-        }
-
-        public DbCommand GenerateIDBCommand(DbConnection connection, string sql, DbTransaction transaction = null)
-        {
-            var command = connection.CreateCommand();
-
-            command.CommandText = sql;
-
-            if (transaction != null)
-                command.Transaction = transaction;
-
-            return command;
-        }
-
         public StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping)
         {
             return new StringBuilder()

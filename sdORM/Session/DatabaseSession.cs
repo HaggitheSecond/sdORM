@@ -47,7 +47,7 @@ namespace sdORM.Session
 
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var command = this.GenerateCommand(sql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -71,7 +71,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForGetById(id, mapping);
 
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql))
+            using (var command = this.GenerateCommand(sql))
             using (var reader = command.ExecuteReader())
             {
                 if (reader.HasRows == false)
@@ -99,7 +99,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForSave(entity, mapping);
 
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
+            using (var command = this.GenerateCommand(sql))
             {
 
                 command.ExecuteNonQuery();
@@ -115,7 +115,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForUpdate(entity, mapping);
 
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
+            using (var command = this.GenerateCommand(sql))
             {
                 command.ExecuteNonQuery();
                 return entity;
@@ -127,7 +127,7 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForDelete(id, mapping);
 
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
+            using (var command = this.GenerateCommand(sql))
             {
                 command.ExecuteNonQuery();
             }
@@ -137,14 +137,14 @@ namespace sdORM.Session
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
             // Throwing an exception might be the better option but simply returning null is consitent with how the Database does it. Not sure...
-            using (var cmd = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, this.SqlSpecificProvider.GetSqlForTableMetaData(tableName)))
+            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForCheckIfTableExtists(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows == false)
                     return null;
             }
 
-            using (var cmd = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, this.SqlSpecificProvider.GetSqlForTableMetaData(tableName)))
+            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForTableMetaData(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 var table = new TableMetaData

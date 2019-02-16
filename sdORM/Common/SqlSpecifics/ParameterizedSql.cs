@@ -7,5 +7,10 @@ namespace sdORM.Common.SqlSpecifics
         public string Sql { get; set; }
 
         public IList<SqlParameter> Parameters { get; set; }
+
+        public ParameterizedSql()
+        {
+            this.Parameters = new List<SqlParameter>();
+        }
     }
 }
