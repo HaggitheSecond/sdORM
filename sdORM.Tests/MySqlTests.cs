@@ -31,7 +31,7 @@ namespace sdORM.Tests
 
                 var factory = new MySqlDatabaseSessionFactory(connectionString, this.MappingProvider);
 
-                factory.Initalize();
+                factory.Initialize();
 
                 return factory;
             }

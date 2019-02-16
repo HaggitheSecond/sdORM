@@ -16,44 +16,14 @@ namespace sdORM.MySql
 
         }
 
-        public override void Initalize()
+        protected override IDatabaseSession CreateSessionInternal()
         {
-            this.IsInitialized = true;
-
-            using (var session = this.CreateSession())
-            {
-                this._mappingProvider.ValidateMappingsAgainstDatabase(session);
-            }
+            return new DatabaseSession(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
         }
 
-        public override async Task InitializeAsync()
+        protected override IDatabaseSessionAsync CreateAsyncSessionInternal()
         {
-            this.IsInitialized = true;
-
-            using (var session = await this.CreateAsyncSession())
-            {
-                await this._mappingProvider.ValidateMappingsAgainstDatabaseAsync(session);
-            }
-        }
-
-        public override IDatabaseSession CreateSession()
-        {
-            if (this.IsInitialized == false)
-                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
-
-            var session = new DatabaseSession(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
-            session.Connect();
-            return session;
-        }
-
-        public override async Task<IDatabaseSessionAsync> CreateAsyncSession()
-        {
-            if (this.IsInitialized == false)
-                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
-
-            var session = new DatabaseSessionAsync(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
-            await session.ConnectAsync();
-            return session;
+            return new DatabaseSessionAsync(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
         }
     }
 }
