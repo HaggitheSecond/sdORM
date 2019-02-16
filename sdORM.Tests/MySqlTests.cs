@@ -216,5 +216,37 @@ namespace sdORM.Tests
                 await session.Delete<Employee>(result1.ID);
             }
         }
+
+        [Fact]
+        public void TransactionTest()
+        {
+            using (var session = this.Factory.CreateSession().WithTransaction())
+            {
+                var items = session.Query<Employee>().Take(3);
+
+                foreach (var currentItem in items)
+                {
+                    currentItem.FirstName += "1";
+
+                    session.SaveOrUpdate(currentItem);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task TransactionAsyncTest()
+        {
+            using (var session = (await this.Factory.CreateAsyncSession()).WithTransaction())
+            {
+                var items = (await session.QueryAsync<Employee>()).Take(3);
+
+                foreach (var currentItem in items)
+                {
+                    currentItem.FirstName += "1";
+
+                    await session.SaveOrUpdateAsync(currentItem);
+                }
+            }
+        }
     }
 }

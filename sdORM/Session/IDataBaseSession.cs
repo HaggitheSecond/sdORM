@@ -13,6 +13,11 @@ namespace sdORM.Session
         void Connect();
 
         /// <summary>
+        /// Creates an transaction which will be applied to all non-reading operations and will be commited when the session is disposed.
+        /// </summary>
+        void AddTransaction();
+
+        /// <summary>
         /// Queries the Database for ALL entities in the table.
         /// </summary>
         /// <typeparam name="T">The entity whose table should be queried.</typeparam>

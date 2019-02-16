@@ -13,14 +13,22 @@ namespace sdORM.Session
         /// <seealso cref="IDatabaseSession"/>
         /// </summary>
         Task ConnectAsync();
+
+        /// <summary>
+        /// Creates an transaction which will be applied to all non-reading operations and will be commited when the session is disposed.
+        /// </summary>
+        void AddTransaction();
+
         /// <summary>
         /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>() where T : new();
+
         /// <summary>
         /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new();
+
         /// <summary>
         /// The async version of <see cref="IDatabaseSession.Query{T}(ParameterizedSql)"/>.
         /// </summary>

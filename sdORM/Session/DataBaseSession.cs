@@ -24,7 +24,7 @@ namespace sdORM.Session
         {
             this.Connection.Open();
         }
-
+        
         public virtual IList<T> Query<T>() where T : new()
         {
             return this.Query<T>(new ParameterizedSql
@@ -99,16 +99,13 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForSave(entity, mapping);
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
             {
 
                 command.ExecuteNonQuery();
-                transaction.Commit();
 
                 this.SqlSpecificProvider.SetIdAfterSave(entity, command, mapping);
-
-
+                
                 return entity;
             }
         }
@@ -118,11 +115,9 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForUpdate(entity, mapping);
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
             {
                 command.ExecuteNonQuery();
-                transaction.Commit();
                 return entity;
             }
         }
@@ -132,11 +127,9 @@ namespace sdORM.Session
             var mapping = this.EntityMappingProvider.GetMapping<T>();
             var sql = this.SqlSpecificProvider.GetSqlForDelete(id, mapping);
 
-            using (var transaction = this.Connection.BeginTransaction())
-            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, transaction))
+            using (var command = this.SqlSpecificProvider.GenerateIDBCommand(this.Connection, sql, this.Transaction))
             {
                 command.ExecuteNonQuery();
-                transaction.Commit();
             }
         }
 

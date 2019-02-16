@@ -11,6 +11,8 @@ namespace sdORM.Session
         protected ISqlSpecificProvider SqlSpecificProvider { get; }
         protected EntityMappingProvider EntityMappingProvider { get; }
 
+        protected DbTransaction Transaction { get; private set; }
+
         protected DatabaseSessionBase(DbConnection connection, EntityMappingProvider entityMappingProvider, ISqlSpecificProvider sqlSpecificProvider)
         {
             Guard.NotNull(connection, nameof(connection));
@@ -22,9 +24,18 @@ namespace sdORM.Session
             this.EntityMappingProvider = entityMappingProvider;
         }
 
+        public void AddTransaction()
+        {
+            this.Transaction = this.Connection.BeginTransaction();
+        }
+
         public void Dispose()
         {
-            this.Connection?.Dispose();
+            this.Transaction?.Commit();
+            this.Connection.Close();
+
+            this.Transaction?.Dispose();
+            this.Connection.Dispose();
         }
     }
 }

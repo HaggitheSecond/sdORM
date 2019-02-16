@@ -83,7 +83,7 @@ namespace sdORM
         }
 
         protected abstract IDatabaseSession CreateSessionInternal();
-
+        
         /// <summary>
         /// Will asynchronously create a <see cref="IDatabaseSessionAsync"/> with the specified connection and open it.
         /// </summary>
