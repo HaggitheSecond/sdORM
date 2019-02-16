@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using sdORM.Common;
+using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping.AttributeMapping;
 using sdORM.MySql;
@@ -56,11 +57,29 @@ namespace sdORM.Tests
         }
 
         [Fact]
+        public void RawConnectionTest()
+        {
+            using (var session = this.Factory.CreateRawSession())
+            {
+
+            }
+        }
+
+        [Fact]
+        public void RawConnectionTestAsync()
+        {
+            using (var session = this.Factory.CreateRawSessionAsync())
+            {
+
+            }
+        }
+
+        [Fact]
         public void QueryTest()
         {
             var sqlProvider = new MySqlSqlProvider();
 
-            using (var session = this.Factory.CreateSession())
+            using (var session = this.Factory.CreateRawSession())
             {
                 #region DateTime
 
@@ -134,10 +153,10 @@ namespace sdORM.Tests
                     1);
             }
 
-            void QueryTestInternal(IDatabaseSession session, Expression<Func<Employee, bool>> expression, string expectedResultSql, int expectedResultParamaterCount)
+            void QueryTestInternal(IRawDatabaseSession session, Expression<Func<Employee, bool>> expression, string expectedResultSql, int expectedResultParamaterCount)
             {
                 var query = sqlProvider.GetSqlForPredicate(expression, this.MappingProvider.GetMapping<Employee>());
-                var result1 = session.Query<Employee>(query);
+                var result1 = session.ExecuteReader<Employee>(query);
                 var replaced = query.GetWithReplacedParameters();
 
                 Assert.True(query.Sql == expectedResultSql);
@@ -246,6 +265,72 @@ namespace sdORM.Tests
 
                     await session.SaveOrUpdateAsync(currentItem);
                 }
+            }
+        }
+
+        [Fact]
+        public void RawExecuteReaderTest()
+        {
+            using (var session = this.Factory.CreateRawSession())
+            {
+                var results = session.ExecuteReader(new ParameterizedSql
+                {
+                    Sql = "SELECT * FROM Employee"
+                });
+            }
+        }
+
+        [Fact]
+        public void RawGenericExecuteReaderTest()
+        {
+            using (var session = this.Factory.CreateRawSession())
+            {
+                var results = session.ExecuteReader<Employee>(new ParameterizedSql
+                {
+                    Sql = "SELECT * FROM Employee"
+                });
+            }
+        }
+
+        [Fact]
+        public void RawExecuteNotQueryTest()
+        {
+            using (var session = this.Factory.CreateRawSession())
+            {
+                var results = session.ExecuteNonQuery("SELECT * FROM EMPLOYEE");
+            }
+        }
+
+        [Fact]
+        public async Task RawExecuteReaderAsyncTest()
+        {
+            using (var session = await this.Factory.CreateRawSessionAsync())
+            {
+                var results = await session.ExecuteReaderAsync(new ParameterizedSql
+                {
+                    Sql = "SELECT * FROM Employee"
+                });
+            }
+        }
+
+        [Fact]
+        public async Task RawGenericExecuteReaderAsyncTest()
+        {
+            using (var session = await this.Factory.CreateRawSessionAsync())
+            {
+                var results = await session.ExecuteReaderAsync<Employee>(new ParameterizedSql
+                {
+                    Sql = "SELECT * FROM Employee"
+                });
+            }
+        }
+
+        [Fact]
+        public async Task RawExecuteNotQueryAsyncTest()
+        {
+            using (var session = await this.Factory.CreateRawSessionAsync())
+            {
+                var results = session.ExecuteNonQueryAsync("SELECT * FROM EMPLOYEE");
             }
         }
     }

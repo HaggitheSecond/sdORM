@@ -28,12 +28,7 @@ namespace sdORM.Session
         /// The async version of <see cref="IDatabaseSession.Query{T}()"/>.
         /// </summary>
         Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new();
-
-        /// <summary>
-        /// The async version of <see cref="IDatabaseSession.Query{T}(ParameterizedSql)"/>.
-        /// </summary>
-        Task<IList<T>> QueryAsync<T>(ParameterizedSql sql) where T : new();
-
+        
         /// <summary>
         /// The async version of <see cref="IDatabaseSession.GetByID{T}"/>.
         /// </summary>

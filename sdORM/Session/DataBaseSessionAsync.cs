@@ -21,26 +21,17 @@ namespace sdORM.Session
 
         }
 
-        public virtual async Task ConnectAsync()
+        public virtual async Task<IList<T>> QueryAsync<T>() where T : new()
         {
-            await this.Connection.OpenAsync();
+            return await this.QueryAsyncInternal<T>(this.SqlSpecificProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString());
         }
 
         public virtual async Task<IList<T>> QueryAsync<T>(Expression<Func<T, bool>> predicate) where T : new()
         {
-            return await this.QueryAsync<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
+            return await this.QueryAsyncInternal<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
         }
-
-        public virtual async Task<IList<T>> QueryAsync<T>() where T : new()
-        {
-            return await this.QueryAsync<T>(new ParameterizedSql
-            {
-                Sql = this.SqlSpecificProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
-                Parameters = new List<SqlParameter>()
-            });
-        }
-
-        public virtual async Task<IList<T>> QueryAsync<T>(ParameterizedSql sql) where T : new()
+        
+        private async Task<IList<T>> QueryAsyncInternal<T>(ParameterizedSql sql) where T : new()
         {
             var mapping = this.EntityMappingProvider.GetMapping<T>();
 

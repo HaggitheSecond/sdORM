@@ -12,5 +12,18 @@ namespace sdORM.Common.SqlSpecifics
         {
             this.Parameters = new List<SqlParameter>();
         }
+
+        public static implicit operator string(ParameterizedSql parameterizedSql)
+        {
+            return parameterizedSql.Sql;
+        }
+
+        public static implicit operator ParameterizedSql(string sql)
+        {
+            return new ParameterizedSql
+            {
+                Sql = sql
+            };
+        }
     }
 }

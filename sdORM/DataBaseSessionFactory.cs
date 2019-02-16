@@ -10,7 +10,7 @@ namespace sdORM
     {
         protected readonly string ConnectionString;
         protected readonly EntityMappingProvider _mappingProvider;
-        
+
         public bool IsInitialized { get; private set; }
 
         protected DatabaseSessionFactory(string connectionString, EntityMappingProvider mappingProvider)
@@ -21,6 +21,8 @@ namespace sdORM
             this.ConnectionString = connectionString;
             this._mappingProvider = mappingProvider;
         }
+
+        #region Initialization
 
         /// <summary>
         /// Will initialize the factory, making sure everything is ready for sessions to be created.
@@ -68,6 +70,12 @@ namespace sdORM
 
         }
 
+        #endregion
+
+        #region Sessions
+
+        #region IDatabaseSession
+
         /// <summary>
         /// Will create a <see cref="IDatabaseSession"/> with the specified connection and open it.
         /// </summary>
@@ -83,7 +91,11 @@ namespace sdORM
         }
 
         protected abstract IDatabaseSession CreateSessionInternal();
-        
+
+        #endregion
+
+        #region IDatabaseSessionAsync
+
         /// <summary>
         /// Will asynchronously create a <see cref="IDatabaseSessionAsync"/> with the specified connection and open it.
         /// </summary>
@@ -99,5 +111,41 @@ namespace sdORM
         }
 
         protected abstract IDatabaseSessionAsync CreateAsyncSessionInternal();
+
+        #endregion
+
+        #region IRawDatabaseSession
+
+        public IRawDatabaseSession CreateRawSession()
+        {
+            if (this.IsInitialized == false)
+                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
+
+            var session = this.CreateRawSessionInternal();
+            session.Connect();
+            return session;
+        }
+
+        protected abstract IRawDatabaseSession CreateRawSessionInternal();
+
+        #endregion
+
+        #region IRawDatabaseSessionAsync
+
+        public async Task<IRawDatabaseSessionAsync> CreateRawSessionAsync()
+        {
+            if (this.IsInitialized == false)
+                throw new DatabaseSessionFactoryNotInitializedException(this.GetType());
+
+            var session = this.CreateRawSessionAsyncInternal();
+            await session.ConnectAsync();
+            return session;
+        }
+
+        protected abstract IRawDatabaseSessionAsync CreateRawSessionAsyncInternal();
+
+        #endregion
+
+        #endregion
     }
 }

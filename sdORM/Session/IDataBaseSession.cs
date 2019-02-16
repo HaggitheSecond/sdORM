@@ -31,15 +31,7 @@ namespace sdORM.Session
         /// <param name="predicate">The predicate by which the entities will be filtered.</param>
         /// <returns>The matching entities in the table.</returns>
         IList<T> Query<T>(Expression<Func<T, bool>> predicate) where T : new();
-
-        /// <summary>
-        /// Queries the Database for all entities with the specified sql query.
-        /// </summary>
-        /// <typeparam name="T">The entity whose table should be queried.</typeparam>
-        /// <param name="sql">The raw sql by which the table will be queried.</param>
-        /// <returns>The matching entities in the table.</returns>
-        IList<T> Query<T>(ParameterizedSql sql) where T : new();
-
+        
         /// <summary>
         /// Gets the entity with the matching primarykey-value or null if none exists.
         /// </summary>

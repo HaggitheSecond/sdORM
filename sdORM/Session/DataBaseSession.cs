@@ -20,28 +20,19 @@ namespace sdORM.Session
 
         }
 
-        public virtual void Connect()
-        {
-            this.Connection.Open();
-        }
-        
         public virtual IList<T> Query<T>() where T : new()
         {
-            return this.Query<T>(new ParameterizedSql
-            {
-                Sql = this.SqlSpecificProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString(),
-                Parameters = new List<SqlParameter>()
-            });
+            return this.QueryInternal<T>(this.SqlSpecificProvider.GetSelectStatementForMapping(this.EntityMappingProvider.GetMapping<T>()).ToString());
         }
 
         public virtual IList<T> Query<T>(Expression<Func<T, bool>> predicate) where T : new()
         {
             Guard.NotNull(predicate, nameof(predicate));
 
-            return this.Query<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
+            return this.QueryInternal<T>(this.SqlSpecificProvider.GetSqlForPredicate(predicate, this.EntityMappingProvider.GetMapping<T>()));
         }
 
-        public virtual IList<T> Query<T>(ParameterizedSql sql) where T : new()
+        private IList<T> QueryInternal<T>(ParameterizedSql sql) where T : new()
         {
             Guard.NotNull(sql, nameof(sql));
 
@@ -101,7 +92,6 @@ namespace sdORM.Session
 
             using (var command = this.GenerateCommand(sql))
             {
-
                 command.ExecuteNonQuery();
 
                 this.SqlSpecificProvider.SetIdAfterSave(entity, command, mapping);

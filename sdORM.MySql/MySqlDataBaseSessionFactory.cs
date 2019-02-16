@@ -25,5 +25,15 @@ namespace sdORM.MySql
         {
             return new DatabaseSessionAsync(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
         }
+
+        protected override IRawDatabaseSession CreateRawSessionInternal()
+        {
+            return new RawDatabaseSession(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
+        }
+
+        protected override IRawDatabaseSessionAsync CreateRawSessionAsyncInternal()
+        {
+            return new RawDatabaseSessionAsync(new MySqlConnection(this.ConnectionString), this._mappingProvider, new MySqlSqlProvider());
+        }
     }
 }

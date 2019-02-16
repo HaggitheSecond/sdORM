@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using sdORM.Common;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
@@ -27,29 +28,33 @@ namespace sdORM.Session
             this.EntityMappingProvider = entityMappingProvider;
         }
 
+        public virtual void Connect()
+        {
+            this.Connection.Open();
+        }
+
+        public virtual async Task ConnectAsync()
+        {
+            await this.Connection.OpenAsync();
+        }
+
         public void AddTransaction()
         {
             this.Transaction = this.Connection.BeginTransaction();
         }
-
-        public DbCommand GenerateCommand(string sql)
+        
+        protected DbCommand GenerateCommand(ParameterizedSql parameterizedSql)
         {
-            return this.GenerateCommand(new ParameterizedSql
-            {
-                Sql = sql
-            });
-        }
+            Guard.NotNull(parameterizedSql, nameof(parameterizedSql));
 
-        public DbCommand GenerateCommand(ParameterizedSql sql)
-        {
             var command = this.Connection.CreateCommand();
 
-            command.CommandText = sql.Sql;
+            command.CommandText = parameterizedSql;
 
             if (this.Transaction != null)
                 command.Transaction = this.Transaction;
             
-            foreach (var currentParameter in sql.Parameters.EmptyIfNull())
+            foreach (var currentParameter in parameterizedSql.Parameters.EmptyIfNull())
             {
                 var parameter = command.CreateParameter();
 
