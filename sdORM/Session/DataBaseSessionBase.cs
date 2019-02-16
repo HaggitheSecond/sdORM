@@ -41,6 +41,15 @@ namespace sdORM.Session
         {
             this.Transaction = this.Connection.BeginTransaction();
         }
+
+        public void RollbackTransaction()
+        {
+            if(this.Transaction != null)
+            {
+                this.Transaction.Rollback();
+                this.Transaction = null;
+            }
+        }
         
         protected DbCommand GenerateCommand(ParameterizedSql parameterizedSql)
         {
