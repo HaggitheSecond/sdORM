@@ -7,7 +7,7 @@ Take a look on github: https://github.com/HaggitheSecond/sdORM
 </Description>
     <PackageLicenseUrl>https://github.com/HaggitheSecond/sdORM/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/HaggitheSecond/sdORM</PackageProjectUrl>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

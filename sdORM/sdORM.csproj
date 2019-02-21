@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/HaggitheSecond/sdORM</PackageProjectUrl>
     <Description>sdORM is a small, very basic ORM. It's still in developement and in its early stages.
