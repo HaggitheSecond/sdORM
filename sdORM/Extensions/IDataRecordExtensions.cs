@@ -35,11 +35,14 @@ namespace sdORM.Extensions
 
         public static ColumnMetaData LoadColumnMetaData(this IDataRecord self)
         {
+            var columnType = self.GetString("column_type");
+
             return new ColumnMetaData
             {
                 ColumnName = self.GetString("column_name"),
                 DataType = self.GetString("data_type"),
-                ColumnType = self.GetString("column_type"),
+                ColumnType = columnType,
+                IsUnsigned = columnType.ToLower().Contains("unsigned")
             };
         }
         

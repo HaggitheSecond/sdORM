@@ -11,10 +11,12 @@ namespace sdORM.Mapping
 {
     public abstract class EntityMappingProvider
     {
+        private readonly ITypeToColumnTypeConverter _converter;
         private readonly Dictionary<Type, EntityMapping> _mappings;
 
-        protected EntityMappingProvider()
+        protected EntityMappingProvider(ITypeToColumnTypeConverter converter)
         {
+            this._converter = converter;
             this._mappings =  new Dictionary<Type, EntityMapping>();
         }
 
@@ -31,7 +33,7 @@ namespace sdORM.Mapping
         {
             foreach (var currentMapping in this._mappings)
             {
-                currentMapping.Value.ValidateAgainstDatabase(session);
+                currentMapping.Value.ValidateAgainstDatabase(session, this._converter);
             }
         }
 
@@ -39,7 +41,7 @@ namespace sdORM.Mapping
         {
             foreach (var currentMapping in this._mappings)
             {
-                await currentMapping.Value.ValidateAgainstDatabase(session);
+                await currentMapping.Value.ValidateAgainstDatabase(session, this._converter);
             }
         }
 

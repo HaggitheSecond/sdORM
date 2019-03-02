@@ -69,17 +69,17 @@ namespace sdORM.Mapping.AttributeMapping
                 throw new NoPrimaryKeyMappingForDBEntityException(typeof(T));
         }
 
-        public override void ValidateAgainstDatabase(IDatabaseSession session)
+        public override void ValidateAgainstDatabase(IDatabaseSession session, ITypeToColumnTypeConverter converter)
         {
-            this.ValidateAgainstTableMetaData(session.GetTableMetaData(this.TableName));
+            this.ValidateAgainstTableMetaData(session.GetTableMetaData(this.TableName), converter);
         }
 
-        public override async Task ValidateAgainstDatabase(IDatabaseSessionAsync session)
+        public override async Task ValidateAgainstDatabase(IDatabaseSessionAsync session, ITypeToColumnTypeConverter converter)
         {
-            this.ValidateAgainstTableMetaData(await session.GetTableMetaDataAsync(this.TableName));
+            this.ValidateAgainstTableMetaData(await session.GetTableMetaDataAsync(this.TableName), converter);
         }
 
-        private void ValidateAgainstTableMetaData(TableMetaData tableMetadata)
+        private void ValidateAgainstTableMetaData(TableMetaData tableMetadata, ITypeToColumnTypeConverter converter)
         {
             if (tableMetadata == null)
                 throw new NoTableForDBEntityException(typeof(T), this.TableName);
@@ -95,6 +95,9 @@ namespace sdORM.Mapping.AttributeMapping
 
                 if (columnMetaData == null)
                     throw new NoMatchingColumnForDBPropertyException(this.TableName, currentProperty.ColumnName);
+
+                if (converter.IsValidTypeForColumnType(currentProperty.Property.PropertyType, columnMetaData) == false)
+                    throw new TypeToColumnTypeMissmatchException(typeof(T), currentProperty.Property, columnMetaData.DataType);
             }
 
             this.HasBeenValidatedAgainstDatabase = true;

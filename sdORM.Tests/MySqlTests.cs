@@ -22,7 +22,7 @@ namespace sdORM.Tests
         {
             get
             {
-                this.MappingProvider = new AttributeEntityMappingProvider();
+                this.MappingProvider = new AttributeEntityMappingProvider(new TypeToMySqlColumnTypeConverter());
 
                 this.MappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
 
