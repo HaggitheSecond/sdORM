@@ -92,9 +92,7 @@ namespace sdORM.Session.Implementations
 
             using (var command = this.GenerateCommand(sql))
             {
-                command.ExecuteNonQuery();
-
-                this.SqlSpecificProvider.SetIdAfterSave(entity, command, mapping);
+                this.SqlSpecificProvider.ExecuteSaveCommandAndSetPrimeryKeyProperty(entity, command, mapping);
                 
                 return entity;
             }
@@ -127,7 +125,7 @@ namespace sdORM.Session.Implementations
         {
             // I'm not sure if returning null if it doesnt exist is really what we want to do here.
             // Throwing an exception might be the better option but simply returning null is consitent with how the Database does it. Not sure...
-            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForCheckIfTableExtists(tableName)))
+            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForCheckIfTableExists(tableName)))
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows == false)

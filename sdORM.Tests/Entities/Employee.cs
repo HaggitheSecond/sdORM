@@ -19,7 +19,7 @@ namespace sdORM.Tests.Entities
         public string LastName { get; set; }
 
         [DBProperty]
-        public int Gender { get; set; }
+        public string Gender { get; set; }
 
         [DBProperty]
         public DateTime Birthday { get; set; }

@@ -9,8 +9,10 @@ namespace sdORM.MySql
 {
     public class TypeToMySqlColumnTypeConverter : ITypeToColumnTypeConverter
     {
-        private MySqlDbType ParseDbType(string columnTypeRaw, bool isUnsigned)
+        private MySqlDbType ParseDbType(string columnTypeRaw)
         {
+            //TODO: This does not work at the moment - needs an actual way to find out if it isUnsigned
+            var isUnsigned = false;
             switch (columnTypeRaw.ToUpper(CultureInfo.InvariantCulture))
             {
                 case "BIT":
@@ -94,7 +96,7 @@ namespace sdORM.MySql
 
         public bool IsValidTypeForColumnType(Type propertyType, ColumnMetaData columnTypeRaw)
         {
-            var columnType = this.ParseDbType(columnTypeRaw.DataType, columnTypeRaw.IsUnsigned);
+            var columnType = this.ParseDbType(columnTypeRaw.DataType);
 
             switch (columnType)
             {

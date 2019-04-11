@@ -7,11 +7,11 @@ using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Session.Interfaces;
 
-namespace sdORM.MySql
+namespace sdORM.MsSql
 {
-    public class ExpressionToMySqlProvider : IExpressionToSqlProvider
+    public class ExpressionToMsSqlProvider : IExpressionToSqlProvider
     {
-        //TODO: make this more reusable and not just a copy of ExpressionToMsSqlProvider
+        //TODO: make this more reusable and not just a copy of ExpressionToMySqlProvider
 
         public ParameterizedSql BuildSqlQuery<T>(Expression<Func<T, bool>> expression)
         {

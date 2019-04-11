@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping;
 using sdORM.Session.Interfaces;
+using SqlParameter = sdORM.Common.SqlSpecifics.SqlParameter;
 
-namespace sdORM.MySql
+namespace sdORM.MsSql
 {
-    public class MySqlSqlProvider : ISqlSpecificProvider
+    public class MsSqlSqlProvider : ISqlSpecificProvider
     {
-        public IExpressionToSqlProvider ExpressionToSqlProvider => new ExpressionToMySqlProvider();
+        public IExpressionToSqlProvider ExpressionToSqlProvider => new ExpressionToMsSqlProvider();
 
         public ParameterizedSql GetSqlForPredicate<T>(Expression<Func<T, bool>> predicate, EntityMapping<T> mapping) where T : new()
         {
@@ -61,24 +62,26 @@ namespace sdORM.MySql
 
         public async Task ExecuteSaveCommandAndSetPrimeryKeyPropertyAsync<T>(T entity, DbCommand command, EntityMapping<T> mapping)
         {
-            await command.ExecuteNonQueryAsync();
-            
-            var mySqlCommand = (MySqlCommand)command;
+            command.CommandText += "SELECT CAST(scope_identity() AS int)";
+
+            var latestPrimareyKey = await command.ExecuteScalarAsync();
 
             mapping.PrimaryKeyPropertyMapping
                 .Property
-                .SetValue(entity, Convert.ChangeType(mySqlCommand.LastInsertedId, mapping.PrimaryKeyPropertyMapping.Property.PropertyType));
+                .SetValue(entity, latestPrimareyKey);
+
         }
 
         public void ExecuteSaveCommandAndSetPrimeryKeyProperty<T>(T entity, IDbCommand command, EntityMapping<T> mapping)
         {
-            command.ExecuteNonQuery();
+            command.CommandText += "SELECT CAST(scope_identity() AS int)";
 
-            var mySqlCommand = (MySqlCommand)command;
+            var latestPrimareyKey = command.ExecuteScalar();
 
             mapping.PrimaryKeyPropertyMapping
                 .Property
-                .SetValue(entity, Convert.ChangeType(mySqlCommand.LastInsertedId, mapping.PrimaryKeyPropertyMapping.Property.PropertyType));
+                .SetValue(entity, latestPrimareyKey);
+
         }
 
         public ParameterizedSql GetSqlForSave<T>(T entity, EntityMapping<T> mapping)
@@ -92,7 +95,7 @@ namespace sdORM.MySql
                 .Append("INSERT INTO ")
                 .Append(mapping.TableName)
                 .Append(" (")
-                .AppendJoin(", ", mapping.Properties.Select(f => f.ColumnName))
+                .AppendJoin(", ", parameters.Select(f => f.ColumnName))
                 .Append(") VALUES ( ")
                 .AppendJoin(", ", parameters.Select(f => f.ParameterName))
                 .Append(");");
@@ -152,12 +155,12 @@ namespace sdORM.MySql
 
         public string GetSqlForTableMetaData(string tableName)
         {
-            return $"SELECT column_name, data_type, column_type FROM information_schema.columns WHERE table_name = '{tableName}'";
+            return $"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{tableName}'";
         }
 
         public string GetSqlForCheckIfTableExists(string tableName)
         {
-            return $"SHOW TABLES LIKE '{tableName}'";
+            return $"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '{tableName}'";
         }
 
         public StringBuilder GetSelectStatementForMapping<T>(EntityMapping<T> mapping)
@@ -177,7 +180,7 @@ namespace sdORM.MySql
                 ColumnName = currentProperty.ColumnName,
                 ParameterName = $"@{currentProperty.ColumnName}",
                 Value = currentProperty.Property.GetValue(entity)
-            });
+            }).Where(f => f.Value != null);
         }
     }
 }

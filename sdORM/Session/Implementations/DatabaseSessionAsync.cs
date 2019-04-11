@@ -87,9 +87,7 @@ namespace sdORM.Session.Implementations
 
             using (var command = this.GenerateCommand(sql))
             {
-                await command.ExecuteNonQueryAsync();
-
-                this.SqlSpecificProvider.SetIdAfterSave(entity, command, mapping);
+                await this.SqlSpecificProvider.ExecuteSaveCommandAndSetPrimeryKeyPropertyAsync(entity, command, mapping);
 
                 return entity;
             }
@@ -121,7 +119,7 @@ namespace sdORM.Session.Implementations
         public virtual async Task<TableMetaData> GetTableMetaDataAsync(string tableName)
         {
             // See sync version for comment
-            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForCheckIfTableExtists(tableName)))
+            using (var cmd = this.GenerateCommand(this.SqlSpecificProvider.GetSqlForCheckIfTableExists(tableName)))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 if (reader.HasRows == false)

@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\sdORM.MsSql\sdORM.MsSql.csproj" />
     <ProjectReference Include="..\sdORM.MySql\sdORM.MySql.csproj" />
     <ProjectReference Include="..\sdORM\sdORM.csproj" />
   </ItemGroup>

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using sdORM.Common.SqlSpecifics;
 using sdORM.Extensions;
 using sdORM.Mapping.AttributeMapping;
+using sdORM.MsSql;
 using sdORM.MySql;
 using sdORM.Session.Interfaces;
 using sdORM.Tests.Entities;
@@ -22,20 +23,33 @@ namespace sdORM.Tests
         {
             get
             {
-                this.MappingProvider = new AttributeEntityMappingProvider(new TypeToMySqlColumnTypeConverter());
-
+                this.MappingProvider = new AttributeEntityMappingProvider(new TypeToMsSqlColumnTypeConverter());
                 this.MappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
 
-                //var connectionString = "Server=b5-312-pc02; Database=mydb; UID=3r1k-uk; password=user2;";
-                var connectionString = "Server=localhost; Database=develop; UID=root; password=;";
-
-                var factory = new MySqlDatabaseSessionFactory(connectionString, this.MappingProvider);
+                var connectionString = @"SERVER=localhost\SQLEXPRESS; Database=sdORMDevelop; UID=root; password=";
+                var factory = new MsSqlDatabaseSessionFactory(connectionString, this.MappingProvider);
 
                 factory.Initialize();
 
                 return factory;
             }
         }
+
+        //public DatabaseSessionFactory Factory
+        //{
+        //    get
+        //    {
+        //        this.MappingProvider = new AttributeEntityMappingProvider(new TypeToMySqlColumnTypeConverter());
+        //        this.MappingProvider.AddMappingsFromAssembly(Assembly.GetCallingAssembly());
+
+        //        var connectionString = "Server=localhost; Database=develop; UID=root; password=;";
+        //        var factory = new MySqlDatabaseSessionFactory(connectionString, this.MappingProvider);
+
+        //        factory.Initialize();
+
+        //        return factory;
+        //    }
+        //}
 
         [Fact]
         public void ConnectionTest()
@@ -93,15 +107,15 @@ namespace sdORM.Tests
                     "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < @Birthday",
                     1);
 
-                QueryTestInternal(session,
-                    f => f.Birthday < DateTime.Now,
-                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < NOW()",
-                    0);
+                //QueryTestInternal(session,
+                //    f => f.Birthday < DateTime.Now,
+                //    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE Birthday < NOW()",
+                //    0);
 
-                QueryTestInternal(session,
-                    f => f.Birthday == DateTime.Today,
-                    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE DATE(Birthday) = DATE(NOW())",
-                    0);
+                //QueryTestInternal(session,
+                //    f => f.Birthday == DateTime.Today,
+                //    "SELECT ID, FirstName, LastName, Gender, Birthday, Status, Salary FROM Employee WHERE DATE(Birthday) = DATE(NOW())",
+                //    0);
 
                 #endregion
 
@@ -250,7 +264,7 @@ namespace sdORM.Tests
                 var result1 = await session.SaveAsync(new Employee
                 {
                     FirstName = "does not matter",
-
+                    Birthday = DateTime.Today
                 });
 
                 Assert.True(result1.ID != 0);
